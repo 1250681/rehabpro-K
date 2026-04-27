@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RehabPro · Classificação K-Level por AHP</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .hero { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 55%,#0d2d4a 100%); padding:6rem 1.5rem 5rem; position:relative; overflow:hidden; }
+    .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 70% 60% at 65% 50%,rgba(13,148,136,0.14) 0%,transparent 70%); }
+    .hero-grid { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; position:relative; z-index:1; }
+    .hero-eyebrow { display:inline-flex; align-items:center; gap:0.5rem; background:rgba(13,148,136,0.15); border:1px solid rgba(13,148,136,0.35); border-radius:999px; padding:0.35rem 1rem; font-size:0.72rem; font-weight:600; color:var(--teal); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:1.25rem; }
+    .hero-eyebrow::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--teal); animation:pulse 2s infinite; }
+    .hero h1 { font-size:clamp(2rem,4vw,3.1rem); font-weight:700; color:var(--white); line-height:1.12; margin-bottom:1.25rem; }
+    .hero h1 span { color:var(--teal); }
+    .hero-desc { font-size:1rem; color:rgba(255,255,255,0.6); line-height:1.75; margin-bottom:2.25rem; }
+    .hero-btns { display:flex; gap:1rem; flex-wrap:wrap; }
+    .hero-img-wrap { position:relative; }
+    .hero-img-wrap img { width:100%; border-radius:1.5rem; box-shadow:0 24px 60px rgba(0,0,0,0.4); object-fit:cover; height:420px; display:block; }
+    .hero-badge { position:absolute; bottom:-1.5rem; left:-1.5rem; background:var(--navy); border:1px solid rgba(13,148,136,0.4); border-radius:1rem; padding:1rem 1.25rem; display:flex; align-items:center; gap:0.75rem; box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+    .hero-badge .icon { width:40px; height:40px; background:rgba(13,148,136,0.2); border-radius:0.65rem; display:flex; align-items:center; justify-content:center; }
+    .hero-badge .t { font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; }
+    .hero-badge .b { font-size:1rem; font-weight:700; color:white; }
+    .stats-band { background:white; border-bottom:1px solid var(--border); padding:2rem 1.5rem; }
+    .stats-grid { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; }
+    .stat-item { text-align:center; }
+    .stat-num { font-family:'DM Mono',monospace; font-size:2.25rem; font-weight:500; color:var(--teal2); display:block; line-height:1; }
+    .stat-lbl { font-size:0.8rem; color:var(--muted); margin-top:0.4rem; }
+    .sobre-section { padding:5rem 1.5rem; background:var(--off); }
+    .sobre-section .inner { max-width:1100px; margin:0 auto; }
+    .sobre-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; margin-top:3rem; }
+    .ahp-flow-card { background:white; border:1px solid var(--border); border-radius:var(--r); padding:1.75rem; box-shadow:0 4px 24px rgba(11,31,58,0.07); }
+    .ahp-flow-title { font-size:0.7rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--teal2); margin-bottom:1.25rem; }
+    .flow-step-row { display:flex; align-items:flex-start; gap:0.875rem; padding:0.875rem 0; border-bottom:1px solid rgba(13,148,136,0.1); }
+    .flow-step-row:last-child { border-bottom:none; }
+    .flow-step-num { width:28px; height:28px; border-radius:0.5rem; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:0.75rem; font-weight:600; background:rgba(13,148,136,0.12); color:var(--teal2); }
+    .flow-step-text strong { display:block; font-size:0.9rem; font-weight:600; color:var(--navy); margin-bottom:0.2rem; }
+    .flow-step-text span { font-size:0.78rem; color:var(--muted); line-height:1.4; }
+    .cr-pill { margin-top:1.25rem; padding:0.75rem 1rem; background:rgba(13,148,136,0.08); border:1px solid rgba(13,148,136,0.2); border-radius:0.75rem; font-family:'DM Mono',monospace; font-size:0.8rem; color:var(--teal2); display:flex; align-items:center; gap:0.5rem; }
+    .photo-section { padding:5rem 1.5rem; background:white; }
+    .photo-section .inner { max-width:1100px; margin:0 auto; }
+    .photo-section .header { margin-bottom:2.5rem; }
+    .photo-grid { display:grid; grid-template-columns:1.4fr 1fr 1fr; grid-template-rows:260px 260px; gap:1.25rem; }
+    .photo-grid .ph { border-radius:1rem; overflow:hidden; position:relative; }
+    .photo-grid .ph img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.4s ease; }
+    .photo-grid .ph:hover img { transform:scale(1.05); }
+    .photo-grid .ph-tall { grid-row:span 2; }
+    .photo-caption { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(11,31,58,0.75)); padding:1.5rem 1rem 1rem; color:white; font-size:0.85rem; font-weight:500; opacity:0; transition:opacity 0.3s; }
+    .photo-grid .ph:hover .photo-caption { opacity:1; }
+    .klevels-section { padding:5rem 1.5rem; background:var(--off); }
+    .klevels-section .inner { max-width:1100px; margin:0 auto; }
+    .k-cards-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; margin-top:2.5rem; }
+    .k-level-card { border-radius:var(--r); padding:1.5rem 1.25rem; border:1px solid; text-align:center; transition:transform 0.2s,box-shadow 0.2s; }
+    .k-level-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,0.12); }
+    .k-level-card .k-big { font-family:'DM Mono',monospace; font-size:2.5rem; font-weight:700; line-height:1; margin-bottom:0.5rem; }
+    .k-level-card .k-name { font-size:0.7rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.6rem; }
+    .k-level-card .k-desc { font-size:0.78rem; line-height:1.5; opacity:0.8; }
+    .kc0{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);color:#b91c1c;}
+    .kc1{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25);color:#92400e;}
+    .kc2{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.25);color:#1d4ed8;}
+    .kc3{background:rgba(13,148,136,.08);border-color:rgba(13,148,136,.25);color:var(--teal2);}
+    .kc4{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.25);color:#6d28d9;}
+    .features { padding:5rem 1.5rem; background:white; }
+    .features .inner { max-width:1100px; margin:0 auto; }
+    .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.75rem; margin-top:3rem; }
+    .feat-card { padding:2rem; border:1px solid var(--border); border-radius:var(--r); transition:all 0.2s; background:var(--off); }
+    .feat-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(11,31,58,0.1); background:white; }
+    .feat-icon { width:52px; height:52px; border-radius:0.875rem; display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem; }
+    .feat-icon.teal{background:rgba(13,148,136,0.12);} .feat-icon.blue{background:rgba(59,130,246,0.1);} .feat-icon.purple{background:rgba(139,92,246,0.1);} .feat-icon.amber{background:rgba(245,158,11,0.1);}
+    .feat-title { font-size:1.05rem; font-weight:700; margin-bottom:0.6rem; color:var(--navy); }
+    .feat-desc { font-size:0.875rem; color:var(--muted); line-height:1.65; }
+    .weights-section { padding:5rem 1.5rem; background:var(--off); }
+    .weights-section .inner { max-width:1100px; margin:0 auto; }
+    .weights-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; margin-top:3rem; }
+    .w-bar-row { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
+    .w-bar-name { font-size:0.875rem; font-weight:500; color:var(--navy); width:140px; flex-shrink:0; }
+    .w-bar-track { flex:1; height:10px; background:rgba(13,148,136,0.12); border-radius:999px; overflow:hidden; }
+    .w-bar-fill { height:100%; background:linear-gradient(90deg,var(--teal),var(--sky)); border-radius:999px; }
+    .w-bar-val { font-family:'DM Mono',monospace; font-size:0.8rem; font-weight:600; color:var(--teal2); width:40px; text-align:right; }
+    .formula-card { background:var(--navy); border-radius:var(--r); padding:1.75rem; font-family:'DM Mono',monospace; font-size:0.82rem; color:rgba(255,255,255,0.6); line-height:2; box-shadow:0 8px 32px rgba(11,31,58,0.25); white-space:pre; }
+    .formula-card .hl { color:#5eead4; font-weight:600; }
+    .formula-card .cm { color:rgba(255,255,255,0.3); font-size:0.72rem; }
+    .cta-section { padding:5rem 1.5rem; background:linear-gradient(135deg,var(--navy) 0%,#0d2d4a 100%); text-align:center; position:relative; overflow:hidden; }
+    .cta-section::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 60% 80% at 50% 100%,rgba(13,148,136,0.2) 0%,transparent 70%); }
+    .cta-section .inner { position:relative; z-index:1; max-width:600px; margin:0 auto; }
+    .cta-section h2 { font-size:clamp(1.75rem,3vw,2.5rem); font-weight:700; color:white; margin-bottom:1rem; }
+    .cta-section p { color:rgba(255,255,255,0.6); line-height:1.7; margin-bottom:2rem; }
+    @media(max-width:900px){.hero-grid{grid-template-columns:1fr;}.hero-img-wrap{display:none;}.stats-grid{grid-template-columns:repeat(2,1fr);}.features-grid{grid-template-columns:1fr 1fr;}.photo-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto;}.photo-grid .ph-tall{grid-row:auto;}.sobre-grid,.weights-grid{grid-template-columns:1fr;}.k-cards-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:600px){.features-grid{grid-template-columns:1fr;}.photo-grid{grid-template-columns:1fr;}.stats-grid{grid-template-columns:1fr 1fr;}.k-cards-grid{grid-template-columns:1fr 1fr;}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">
+    <svg class="nav-logo" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="8" fill="#0d9488"/>
+      <path d="M10 9h8c2.2 0 4 1.8 4 4s-1.8 4-4 4l4.5 8h-3.5L15 17h-2v8h-3V9z" fill="white"/>
+      <circle cx="29" cy="9" r="3.5" fill="#5eead4"/>
+    </svg>
+    <span class="nav-brand-text">
+      <span class="top">AHP · Ortoprostética</span>
+      <span class="btm">RehabPro</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Início</a></li>
+    <li><a href="ferramenta.html">Ferramenta</a></li>
+    <li><a href="ferramenta.html" class="nav-cta">Iniciar avaliação →</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid">
+    <div class="anim">
+      <div class="hero-eyebrow">Sistema de Apoio à Decisão · Protótipo experimental</div>
+      <h1>Classificação <span>K-Level</span><br>baseada em <span>AHP</span></h1>
+      <p class="hero-desc">Plataforma clínica integrada para avaliação funcional de amputados de membro inferior e prescrição de componentes protésicos. Metodologia AHP com consistência matemática verificável (CR&nbsp;=&nbsp;0.015).</p>
+      <div class="hero-btns">
+        <a href="ferramenta.html" class="btn btn-primary">Iniciar avaliação →</a>
+        <a href="#sobre" class="btn btn-outline" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2);">Saber mais</a>
+      </div>
+    </div>
+    <div class="hero-img-wrap anim anim-d2">
+      <img src="images\national-cancer-institute-NFvdKIhxYlU-unsplash.jpg"
+           alt="Reabilitação protésica"
+           onerror="this.src='https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80'"/>
+      <div class="hero-badge">
+        <div class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <div><div class="t">Consistência verificada</div><div class="b">CR = 0.015 ✓</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-band">
+  <div class="stats-grid">
+    <div class="stat-item anim"><span class="stat-num">15</span><div class="stat-lbl">Itens de avaliação</div></div>
+    <div class="stat-item anim anim-d1"><span class="stat-num">5</span><div class="stat-lbl">Domínios clínicos</div></div>
+    <div class="stat-item anim anim-d2"><span class="stat-num">K0–K4</span><div class="stat-lbl">Níveis funcionais</div></div>
+    <div class="stat-item anim anim-d3"><span class="stat-num">0.015</span><div class="stat-lbl">CR — consistência AHP</div></div>
+  </div>
+</div>
+
+<section class="sobre-section" id="sobre">
+  <div class="inner">
+    <p class="section-eyebrow">O método</p>
+    <h2 class="section-heading">AHP aplicado à decisão clínica protésica</h2>
+    <p class="section-sub">O Analytic Hierarchy Process (Saaty, 1980) estrutura julgamentos subjectivos em pesos quantitativos verificáveis, tornando a classificação K-Level transparente, reprodutível e auditável.</p>
+    <div class="sobre-grid">
+      <div>
+        <p style="font-size:0.95rem;color:var(--muted);line-height:1.75;margin-bottom:1.25rem;">O sistema híbrido combina o score AHP contínuo com <strong style="color:var(--navy)">regras de corte clínicas</strong> que capturam contra-indicações absolutas — como impossibilidade de transferência ou recusa de reabilitação — que um modelo puramente aditivo não consegue representar.</p>
+        <p style="font-size:0.95rem;color:var(--muted);line-height:1.75;margin-bottom:1.25rem;">O resultado encadeia directamente na <strong style="color:var(--navy)">recomendação de componentes</strong> protésicos (pé, joelho, suspensão) condicionada ao nível de amputação, maturidade e tecido do coto, com referências Össur e Ottobock.</p>
+        <p style="font-size:0.95rem;color:var(--muted);line-height:1.75;">Adicionalmente, <strong style="color:var(--navy)">7 alertas de segurança</strong> são gerados automaticamente com base em combinações de risco clinicamente relevantes.</p>
+      </div>
+      <div class="ahp-flow-card">
+        <div class="ahp-flow-title">Fluxo de decisão</div>
+        <div class="flow-step-row"><div class="flow-step-num">1</div><div class="flow-step-text"><strong>Avaliação funcional</strong><span>15 itens em 5 domínios · escala 1–4</span></div></div>
+        <div class="flow-step-row"><div class="flow-step-num">2</div><div class="flow-step-text"><strong>Score AHP ponderado</strong><span>&#8721; w&#7522; · s&#7522; — pesos por matriz Saaty 5×5</span></div></div>
+        <div class="flow-step-row"><div class="flow-step-num">3</div><div class="flow-step-text"><strong>Regras de corte (hard cuts)</strong><span>6 contra-indicações absolutas → K máximo</span></div></div>
+        <div class="flow-step-row"><div class="flow-step-num">4</div><div class="flow-step-text"><strong>K-Level + alertas de segurança</strong><span>7 combinações de risco identificadas</span></div></div>
+        <div class="flow-step-row"><div class="flow-step-num">5</div><div class="flow-step-text"><strong>Prescrição de componentes</strong><span>Pé · Joelho · Suspensão — Össur + Ottobock</span></div></div>
+        <div class="cr-pill">✓ CR = 0.015 &lt; 0.10 · n = 5 · RI&#8085; = 1.12 · Consistência verificada</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="photo-section">
+  <div class="inner">
+    <div class="header">
+      <p class="section-eyebrow">Reabilitação em imagens</p>
+      <h2 class="section-heading">Cuidados centrados no doente</h2>
+      <p class="section-sub">A reabilitação protésica é um processo multidisciplinar que combina avaliação funcional, prescrição técnica e acompanhamento contínuo.</p>
+    </div>
+    <div class="photo-grid">
+      <div class="ph ph-tall">
+        <img src="images/pexels-shvetsa-5069136.jpg" onerror="this.src='https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=80'" alt="Fisioterapeuta com paciente"/>
+        <div class="photo-caption">Avaliação funcional e treino de marcha</div>
+      </div>
+      <div class="ph">
+        <img src="images\daniel-odame-ejKF-tWFMhw-unsplash.jpg" onerror="this.src='https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=500&q=80'" alt="Consulta de reabilitação"/>
+        <div class="photo-caption">Consulta multidisciplinar de prescrição</div>
+      </div>
+      <div class="ph">
+        <img src="images/pexels-cottonbro-6153354.jpg" onerror="this.src='https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500&q=80'" alt="Tecnologia protésica"/>
+        <div class="photo-caption">Tecnologia protésica avançada</div>
+      </div>
+      <div class="ph">
+        <img src="images/pexels-rdne-6129507.jpg" onerror="this.src='https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500&q=80'" alt="Equipa especializada"/>
+        <div class="photo-caption">Equipa especializada em ortoprostética</div>
+      </div>
+      <div class="ph">
+        <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500&q=80" alt="Reintegração funcional"/>
+        <div class="photo-caption">Reintegração funcional e autonomia</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="klevels-section">
+  <div class="inner">
+    <p class="section-eyebrow">Escala funcional</p>
+    <h2 class="section-heading">Níveis funcionais K0 a K4</h2>
+    <p class="section-sub">A classificação K-Level (HCFA/Medicare) determina o potencial de deambulação protésica e orienta a prescrição de componentes.</p>
+    <div class="k-cards-grid">
+      <div class="k-level-card kc0 anim"><div class="k-big">K0</div><div class="k-name">Sem potencial</div><div class="k-desc">Prótese não indicada. Foco em transferências e cadeira de rodas.</div></div>
+      <div class="k-level-card kc1 anim anim-d1"><div class="k-big">K1</div><div class="k-name">Uso doméstico</div><div class="k-desc">Superfície plana, velocidade fixa. Mobilidade doméstica básica.</div></div>
+      <div class="k-level-card kc2 anim anim-d2"><div class="k-big">K2</div><div class="k-name">Comunidade limitada</div><div class="k-desc">Obstáculos, rampas, passeios. Actividade comunitária limitada.</div></div>
+      <div class="k-level-card kc3 anim anim-d3"><div class="k-big">K3</div><div class="k-name">Comunidade plena</div><div class="k-desc">Velocidade variável, escadas, terreno irregular. Retorno profissional.</div></div>
+      <div class="k-level-card kc4 anim anim-d4"><div class="k-big">K4</div><div class="k-name">Alta performance</div><div class="k-desc">Atletas, utilizadores muito activos. Desporto e impacto elevado.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="inner">
+    <p class="section-eyebrow">O que oferecemos</p>
+    <h2 class="section-heading">Ferramenta clínica completa</h2>
+    <p class="section-sub">Desenvolvida para apoiar o processo de decisão na prescrição de próteses de membro inferior com base na metodologia AHP.</p>
+    <div class="features-grid">
+      <div class="feat-card anim">
+        <div class="feat-icon teal"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9M15 21V9"/></svg></div>
+        <div class="feat-title">Matriz AHP ajustável</div>
+        <p class="feat-desc">Matriz de comparação par-a-par 5×5 editável com cálculo automático de pesos e validação do CR em tempo real.</p>
+      </div>
+      <div class="feat-card anim anim-d1">
+        <div class="feat-icon blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+        <div class="feat-title">Classificação K-Level</div>
+        <p class="feat-desc">Score AHP ponderado mapeado em K0–K4 com 6 regras de corte clínicas para contra-indicações absolutas.</p>
+      </div>
+      <div class="feat-card anim anim-d2">
+        <div class="feat-icon amber"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="feat-title">Alertas de segurança</div>
+        <p class="feat-desc">7 combinações de risco detectadas automaticamente — equilíbrio vs. motivação, cognição vs. isolamento, objectivos vs. capacidade real.</p>
+      </div>
+      <div class="feat-card anim">
+        <div class="feat-icon teal"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div class="feat-title">Perfil multidimensional</div>
+        <p class="feat-desc">Avalia capacidade física, segurança, dados clínicos, factores psicológicos e contexto com ponderação AHP diferenciada.</p>
+      </div>
+      <div class="feat-card anim anim-d1">
+        <div class="feat-icon purple"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="feat-title">Prescrição de componentes</div>
+        <p class="feat-desc">Recomendação de pé, joelho e suspensão condicionada ao nível de amputação e coto. Össur + Ottobock com referências.</p>
+      </div>
+      <div class="feat-card anim anim-d2">
+        <div class="feat-icon blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+        <div class="feat-title">GitHub Pages ready</div>
+        <p class="feat-desc">Ficheiros independentes prontos para publicar sem configuração adicional. Totalmente responsivo para uso clínico em qualquer dispositivo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="weights-section">
+  <div class="inner">
+    <p class="section-eyebrow">Ponderação AHP</p>
+    <h2 class="section-heading">Cinco domínios, pesos validados</h2>
+    <p class="section-sub">Hierarquia definida por julgamento clínico: Segurança domina porque erros de prescrição em utilizadores de risco têm consequências directas na integridade física.</p>
+    <div class="weights-grid">
+      <div>
+        <div class="w-bar-row anim"><div class="w-bar-name">Segurança</div><div class="w-bar-track"><div class="w-bar-fill" style="width:100%"></div></div><div class="w-bar-val">41.6%</div></div>
+        <div class="w-bar-row anim anim-d1"><div class="w-bar-name">Dados clínicos</div><div class="w-bar-track"><div class="w-bar-fill" style="width:63%"></div></div><div class="w-bar-val">26.2%</div></div>
+        <div class="w-bar-row anim anim-d2"><div class="w-bar-name">Cap. física</div><div class="w-bar-track"><div class="w-bar-fill" style="width:39%"></div></div><div class="w-bar-val">16.1%</div></div>
+        <div class="w-bar-row anim anim-d3"><div class="w-bar-name">Fat. psicológicos</div><div class="w-bar-track"><div class="w-bar-fill" style="width:24%"></div></div><div class="w-bar-val">9.9%</div></div>
+        <div class="w-bar-row anim anim-d4"><div class="w-bar-name">Contexto / obj.</div><div class="w-bar-track"><div class="w-bar-fill" style="width:15%"></div></div><div class="w-bar-val">6.2%</div></div>
+        <p style="margin-top:1.5rem;font-size:0.85rem;color:var(--muted);line-height:1.7;">Os pesos são ajustáveis na ferramenta através da tab <strong style="color:var(--navy)">"Pesos AHP"</strong>. Um CR &ge; 0.10 aciona um aviso automático de inconsistência.</p>
+      </div>
+      <div class="formula-card anim"><span class="cm">// 1. Normalizar colunas da matriz</span>
+a&#7522;&#11388;_norm = a&#7522;&#11388; / &#8721; a&#7728;&#11388;
+
+<span class="cm">// 2. Peso de cada critério</span>
+w&#7522; = (1/n) · &#8721; a&#7522;&#11388;_norm
+
+<span class="cm">// 3. Valor próprio principal</span>
+&#955;_max = (1/n) · &#8721; [(A·w)&#7522; / w&#7522;]
+      = <span class="hl">5.0683</span>
+
+<span class="cm">// 4. Índice de Consistência</span>
+CI = (&#955;_max &#8722; n) / (n &#8722; 1) = <span class="hl">0.0171</span>
+
+<span class="cm">// 5. Rácio de Consistência (RI&#8085; = 1.12)</span>
+CR = CI / RI = <span class="hl">0.0153 ✓</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="inner">
+    <p class="section-eyebrow" style="color:var(--teal)">Pronto para começar?</p>
+    <h2>Inicie uma avaliação clínica agora</h2>
+    <p>Preencha os 5 blocos de avaliação e obtenha a classificação K-Level com recomendação de componentes protésicos baseada no perfil do seu doente.</p>
+    <a href="ferramenta.html" class="btn btn-primary" style="font-size:1.05rem;padding:1rem 2rem;">Abrir ferramenta de avaliação →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-links">
+    <a href="index.html">Início</a>
+    <a href="ferramenta.html">Ferramenta</a>
+  </div>
+  <p><strong>RehabPro · AHP K-Level · Engenharia Biomédica</strong></p>
+  <p>Ferramenta de apoio à decisão clínica · Uso exclusivo por profissionais de saúde habilitados</p>
+  <p style="margin-top:0.5rem;font-size:0.75rem">Esta ferramenta não substitui o julgamento clínico. Todos os resultados devem ser validados por clínico especialista.</p>
+</footer>
+
+</body>
+</html>
