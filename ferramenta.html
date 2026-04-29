@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ferramenta AHP · RehabPro</title>
+  <style>
+/* ═══════════════════════════════════════════
+   RehabPro · Medicina Física e Reabilitação
+   style.css — partilhado em todas as páginas
+═══════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #0b1f3a;
+  --navy2:   #122848;
+  --teal:    #0d9488;
+  --teal2:   #0f766e;
+  --teal-lt: #ccfbf1;
+  --sky:     #38bdf8;
+  --white:   #ffffff;
+  --off:     #f0f6fc;
+  --card:    rgba(255,255,255,0.88);
+  --border:  rgba(13,148,136,0.18);
+  --text:    #0b1f3a;
+  --muted:   #5c7a96;
+  --red:     #ef4444;
+  --green:   #10b981;
+  --amber:   #f59e0b;
+  --blue:    #3b82f6;
+  --r:       1.25rem;
+  --blur:    blur(18px);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sora', system-ui, sans-serif;
+  background: var(--off);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(11,31,58,0.97);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(13,148,136,0.3);
+  padding: 0 2rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.nav-logo {
+  width: 36px;
+  height: 36px;
+}
+
+.nav-brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+.nav-brand-text .top { font-size: 0.6rem; font-weight: 500; color: var(--teal); letter-spacing: 0.1em; text-transform: uppercase; }
+.nav-brand-text .btm { font-size: 1rem; font-weight: 700; color: var(--white); }
+
+.nav-links { display: flex; gap: 0.25rem; list-style: none; }
+.nav-links a {
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+.nav-links a:hover, .nav-links a.active {
+  color: var(--white);
+  background: rgba(13,148,136,0.25);
+}
+
+.nav-cta {
+  background: var(--teal) !important;
+  color: white !important;
+  padding: 0.5rem 1.1rem !important;
+  border-radius: 0.5rem;
+}
+.nav-cta:hover { background: var(--teal2) !important; }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.45);
+  text-align: center;
+  padding: 2.5rem 2rem;
+  font-size: 0.8rem;
+  line-height: 1.9;
+  margin-top: auto;
+}
+footer strong { color: rgba(255,255,255,0.85); }
+footer a { color: var(--teal); text-decoration: none; }
+.footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.footer-links a { color: rgba(255,255,255,0.55); font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+.footer-links a:hover { color: var(--teal); }
+
+/* ─── UTILITIES ─── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+.container-sm { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
+
+.section-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--teal2);
+  margin-bottom: 0.5rem;
+}
+.section-heading {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+.section-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 0.75rem;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: linear-gradient(90deg, var(--teal), var(--teal2));
+  color: white;
+  box-shadow: 0 8px 20px rgba(13,148,136,0.25);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(13,148,136,0.35); filter: brightness(1.05); }
+.btn-outline {
+  background: transparent;
+  color: var(--navy);
+  border: 2px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--teal); color: var(--teal2); background: rgba(13,148,136,0.05); }
+.btn-white {
+  background: white;
+  color: var(--navy);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.btn-white:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.15); }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: 0 4px 24px rgba(11,31,58,0.07);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(11,31,58,0.12); }
+
+/* ─── PILLS ─── */
+.pill { font-size: 0.8rem; font-weight: 600; padding: 0.4rem 0.9rem; border-radius: 999px; }
+.pill-blue   { background: #eff6ff; color: #1d4ed8; }
+.pill-green  { background: #ecfdf5; color: #065f46; }
+.pill-amber  { background: #fffbeb; color: #92400e; }
+.pill-red    { background: #fef2f2; color: #991b1b; }
+.pill-teal   { background: var(--teal-lt); color: var(--teal2); }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.anim { animation: fadeUp 0.5s ease both; }
+.anim-d1 { animation-delay: 0.1s; }
+.anim-d2 { animation-delay: 0.2s; }
+.anim-d3 { animation-delay: 0.3s; }
+.anim-d4 { animation-delay: 0.4s; }
+
+/* ─── FORM ELEMENTS ─── */
+.field { display: flex; flex-direction: column; gap: 0.5rem; }
+.field label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.field input,
+.field select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  font-family: 'Sora', sans-serif;
+  background: rgba(255,255,255,0.85);
+  border: 1.5px solid rgba(13,148,136,0.2);
+  border-radius: 0.75rem;
+  color: var(--text);
+  transition: all 0.2s;
+  appearance: none;
+}
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13,148,136,0.12);
+  background: white;
+}
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 1rem; top: 50%;
+  transform: translateY(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--muted);
+  pointer-events: none;
+}
+.radio-row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.radio-row label {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.95rem; font-weight: 500; cursor: pointer;
+  text-transform: none; letter-spacing: 0; color: var(--text);
+}
+.radio-row input[type="radio"] { accent-color: var(--teal); width: 16px; height: 16px; }
+
+/* ─── STEP CARDS ─── */
+.step {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: 0 4px 20px rgba(11,31,58,0.07);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: fadeUp 0.4s ease both;
+}
+.step:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(11,31,58,0.11); }
+
+.step-header {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(240,246,252,0.5);
+}
+.step-num {
+  width: 38px; height: 38px;
+  border-radius: 0.65rem;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 1rem; font-weight: 500; color: white; flex-shrink: 0;
+}
+.sA .step-num { background: linear-gradient(135deg,#3b82f6,#2563eb); }
+.sB .step-num { background: linear-gradient(135deg,#0d9488,#0f766e); }
+.sC .step-num { background: linear-gradient(135deg,#f59e0b,#d97706); }
+.sD .step-num { background: linear-gradient(135deg,#8b5cf6,#7c3aed); }
+.sE .step-num { background: linear-gradient(135deg,#ec4899,#db2777); }
+
+.step-title { font-size: 1.05rem; font-weight: 600; }
+.step-subtitle { font-size: 0.78rem; color: var(--muted); margin-left: auto; font-family: 'DM Mono', monospace; }
+.step-body { padding: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.step-body.single { grid-template-columns: 1fr; }
+
+/* ─── AMP ITEMS ─── */
+.amp-item { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+.amp-item:last-child { border-bottom: none; }
+.amp-item-label { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--navy); }
+.amp-option {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid rgba(13,148,136,0.15);
+  border-radius: 0.75rem; cursor: pointer;
+  transition: all 0.18s;
+  background: rgba(255,255,255,0.5);
+  margin-bottom: 0.45rem; font-size: 0.875rem;
+}
+.amp-option:last-child { margin-bottom: 0; }
+.amp-option:hover { background: rgba(13,148,136,0.05); border-color: var(--teal); }
+.amp-option.selected { background: rgba(13,148,136,0.1); border-color: var(--teal); }
+.amp-option input[type="radio"] { margin-top: 2px; accent-color: var(--teal); flex-shrink: 0; }
+
+/* ─── SCORE BAR ─── */
+.score-preview {
+  display: flex; align-items: center; gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: rgba(240,246,252,0.6);
+}
+.score-num { font-family: 'DM Mono', monospace; font-size: 2.25rem; font-weight: 500; color: var(--teal2); }
+.score-lbl { font-size: 0.75rem; color: var(--muted); }
+.score-bar-wrap { flex: 1; height: 8px; background: rgba(13,148,136,0.12); border-radius: 999px; overflow: hidden; }
+.score-bar-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--sky)); border-radius: 999px; transition: width 0.4s ease; width: 0%; }
+.k-live { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 500; padding: 0.4rem 1rem; border-radius: 999px; background: rgba(13,148,136,0.1); color: var(--teal2); border: 1px solid rgba(13,148,136,0.25); }
+
+/* ─── ERROR ─── */
+.error-bar { background: #fef2f2; border-left: 4px solid var(--red); color: #991b1b; padding: 1rem 1.5rem; font-size: 0.875rem; display: none; }
+.error-bar.visible { display: block; }
+
+/* ─── CAP DISPLAY ─── */
+.cap-display { display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; }
+.cap-score { font-family: 'DM Mono', monospace; font-size: 3rem; font-weight: 500; color: var(--teal2); }
+.cap-klevel { font-size: 1.2rem; font-weight: 600; }
+.cap-pts { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+.cap-empty { padding: 2rem 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  nav { padding: 0 1rem; }
+  .nav-links { display: none; }
+  .step-body { grid-template-columns: 1fr; }
+}
+
+@media print {
+  nav, footer, .btn, .no-print { display: none !important; }
+  .step { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+}
+
+</style>
+  
+  <style>
+/* ── AHP Tool variables ── */
+:root {
+  --bg:       #E8EEF8;
+  --surface:  #FFFFFF;
+  --surface-2:#F4F6FF;
+  --border:   rgba(79,102,200,.12);
+  --border-2: rgba(79,102,200,.22);
+  --text-1:   #0F1535;
+  --text-2:   #4A5280;
+  --text-3:   #8B95C0;
+  --accent:   #3B6EF6;
+  --accent-glow: rgba(59,110,246,.18);
+  --accent-dim:  rgba(59,110,246,.09);
+  --teal:     #0B9488;
+  --teal-dim: rgba(11,148,136,.1);
+  --amber:    #B45309;
+  --red:      #DC2626;
+  --red-dim:  rgba(220,38,38,.09);
+  --k0:#DC2626; --k0-dim:rgba(220,38,38,.1);
+  --k1:#D97706; --k1-dim:rgba(217,119,6,.1);
+  --k2:#2563EB; --k2-dim:rgba(37,99,235,.1);
+  --k3:#059669; --k3-dim:rgba(5,150,105,.1);
+  --k4:#7C3AED; --k4-dim:rgba(124,58,237,.1);
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:20px;
+}
+
+/* ── Page layout ── */
+body { background:#E8EEF8 !important; cursor:default !important; display:block !important; padding:0 !important; }
+body::before { display:none !important; }
+.tool-page {
+  min-height:calc(100vh - 64px);
+  background:#E8EEF8;
+  display:flex; flex-direction:column; align-items:center;
+  padding:36px 20px 80px;
+}
+.glow { display:none !important; }
+
+/* Fix shared CSS conflict with .ps progress segments */
+.prog-track { display:flex !important; gap:4px !important; margin-bottom:8px !important; }
+.prog-track .ps {
+  flex:1 !important; height:4px !important; border-radius:3px !important;
+  background:rgba(79,102,200,.18) !important;
+  display:block !important; width:auto !important; min-width:0 !important;
+  font-size:0 !important; color:transparent !important; padding:0 !important; margin:0 !important;
+}
+.prog-track .ps.done { background:#0B9488 !important; }
+.prog-track .ps.active { background:#3B6EF6 !important; }
+
+/* Wider layout */
+.header { max-width:860px !important; }
+.app { max-width:860px !important; width:100% !important; }
+.disclaimer { max-width:860px !important; }
+
+/* ── AHP tool styles (inline from v4) ── */
+.header {
+  width:100%; padding:28px 0 22px;
+  margin-bottom:24px; border-bottom:1px solid var(--border);
+  position:relative; z-index:1;
+}
+.header-eyebrow {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 10px; border-radius:100px;
+  background:#0043F4; border:1px solid rgba(0,67,244,.3);
+  font-size:11px; font-weight:600; letter-spacing:.08em;
+  text-transform:uppercase; color:#E8E8E8; margin-bottom:12px;
+}
+.header-dot { width:5px; height:5px; border-radius:50%; background:var(--accent); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.header-title { font-size:26px; font-weight:700; color:var(--text-1); letter-spacing:-.04em; line-height:1.15; }
+.header-title span { color:var(--accent); }
+.header-sub { font-size:13px; color:var(--text-2); margin-top:6px; line-height:1.55; }
+.app { position:relative; z-index:1; }
+.tabs { display:flex; gap:2px; margin-bottom:24px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:4px; }
+.tb { flex:1; padding:9px 16px; font-size:13px; font-weight:500; cursor:pointer; background:transparent; border:none; color:var(--text-3); border-radius:var(--radius-sm); transition:color .15s,background .15s; font-family:'Sora',sans-serif; letter-spacing:-.01em; }
+.tb:hover { color:var(--text-2); background:var(--surface-2); }
+.tb.on { background:var(--surface-2); color:var(--text-1); box-shadow:0 1px 3px rgba(0,0,0,.3); }
+.tab { display:none; }
+.tab.active { display:block; }
+.prog-wrap { margin-bottom:20px; }
+.prog-label { display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-2); }
+.bh { margin-bottom:20px; }
+.bt { font-size:20px; font-weight:700; color:var(--text-1); letter-spacing:-.035em; display:flex; align-items:center; gap:10px; flex-wrap:wrap; line-height:1.2; font-family:'Sora',sans-serif; }
+.bsub { font-size:13px; color:var(--text-2); margin-top:6px; line-height:1.55; }
+.w-pill { display:inline-flex; align-items:center; padding:3px 10px; border-radius:100px; background:#0046FF; border:1px solid rgba(0,70,255,.3); font-size:11.5px; font-weight:600; color:#F7F7F7; }
+.q { margin-bottom:18px; }
+.q-label { font-size:14px; font-weight:500; color:var(--text-2); display:block; margin-bottom:9px; line-height:1.45; }
+.opts { display:flex; flex-direction:column; gap:6px; }
+.ob { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:11px 15px; font-size:14px; font-weight:400; color:var(--text-2); text-align:left; cursor:pointer; transition:border-color .15s,background .15s,color .15s; line-height:1.4; font-family:'Sora',sans-serif; }
+.ob:hover { border-color:var(--border-2); color:var(--text-1); background:var(--surface-2); }
+.ob.sel { border-color:var(--accent); background:var(--accent-dim); color:var(--text-1); font-weight:500; box-shadow:0 0 0 1px var(--accent); }
+.div { height:1px; background:var(--border); margin:18px 0; }
+.nav { display:flex; justify-content:space-between; align-items:center; margin-top:24px; padding-top:18px; border-top:1px solid var(--border); }
+.bn { padding:9px 20px; border-radius:var(--radius-md); font-size:14px; font-weight:500; cursor:pointer; border:1px solid var(--border-2); background:var(--surface); color:var(--text-2); transition:background .15s; font-family:'Sora',sans-serif; }
+.bn:hover { background:var(--surface-2); color:var(--text-1); }
+.bn.pri { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600; box-shadow:0 4px 16px rgba(79,142,247,.3); }
+.bn.pri:hover { background:#6BA3F9; }
+.bn:disabled { opacity:.3; cursor:not-allowed; box-shadow:none; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:24px; margin-bottom:10px; }
+.k-hero { display:flex; align-items:flex-start; gap:18px; margin-bottom:20px; }
+.k-circle { width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; flex-shrink:0; border:2px solid; }
+.k0c{background:var(--k0-dim);color:var(--k0);border-color:rgba(248,113,113,.3)}
+.k1c{background:var(--k1-dim);color:var(--k1);border-color:rgba(251,191,36,.3)}
+.k2c{background:var(--k2-dim);color:var(--k2);border-color:rgba(96,165,250,.3)}
+.k3c{background:var(--k3-dim);color:var(--k3);border-color:rgba(52,211,153,.3)}
+.k4c{background:var(--k4-dim);color:var(--k4);border-color:rgba(167,139,250,.3)}
+.k-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:5px; border:1px solid; }
+.k0b{background:var(--k0-dim);color:var(--k0);border-color:rgba(248,113,113,.25)}
+.k1b{background:var(--k1-dim);color:var(--k1);border-color:rgba(251,191,36,.25)}
+.k2b{background:var(--k2-dim);color:var(--k2);border-color:rgba(96,165,250,.25)}
+.k3b{background:var(--k3-dim);color:var(--k3);border-color:rgba(52,211,153,.25)}
+.k4b{background:var(--k4-dim);color:var(--k4);border-color:rgba(167,139,250,.25)}
+.k-num { font-size:44px; font-weight:800; line-height:1; letter-spacing:-.06em; margin-bottom:4px; }
+.k-desc { font-size:13px; color:var(--text-2); line-height:1.5; }
+.score-section-title { font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); margin-bottom:12px; }
+.srow { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.slbl { font-size:12.5px; color:var(--text-2); width:175px; flex-shrink:0; display:flex; align-items:center; gap:6px; }
+.strk { flex:1; height:5px; background:var(--border-2); border-radius:3px; overflow:hidden; }
+.sfil { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--accent),var(--teal)); transition:width .6s cubic-bezier(.4,0,.2,1); }
+.sval { font-size:12px; font-weight:600; color:var(--text-3); width:30px; text-align:right; }
+.cr-row { display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--text-3); }
+.crbadge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:100px; font-size:12px; font-weight:600; border:1px solid; }
+.crok { background:var(--teal-dim); color:var(--teal); border-color:rgba(45,212,191,.25); }
+.crwarn { background:rgba(180,83,9,.08); color:var(--amber); border-color:rgba(245,158,11,.25); }
+.flag { border-radius:var(--radius-md); padding:12px 15px; margin-bottom:7px; font-size:13px; line-height:1.55; border:1px solid; }
+.fw { background:#FFF8ED; color:#7A3800; border-color:rgba(138,82,0,.3); }
+.fi { background:#EEF4FF; color:#1A3FBF; border-color:rgba(26,63,191,.25); }
+.fe { background:#FFF0F0; color:#8B0000; border-color:rgba(160,24,24,.3); }
+.fs { background:#FFF0F0; color:#8B0000; border-color:rgba(220,38,38,.3); border-left:3px solid #dc2626; }
+.matrix-wrap { overflow-x:auto; margin-bottom:14px; }
+table.mtx { width:100%; border-collapse:collapse; font-size:12px; }
+table.mtx th,table.mtx td { padding:7px 8px; border:1px solid var(--border); text-align:center; }
+table.mtx th { background:var(--surface-2); font-weight:600; font-size:11px; color:var(--text-2); }
+table.mtx td { background:var(--surface); }
+table.mtx td.diag { background:var(--surface-2); color:var(--text-3); font-weight:600; }
+table.mtx input { width:54px; border:1px solid var(--border); border-radius:6px; padding:4px 5px; font-size:12px; text-align:center; background:var(--surface-2); color:var(--text-1); font-family:'Sora',sans-serif; }
+table.mtx input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-glow); }
+.cut-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.cut-row:first-child { border-top:1px solid var(--border); }
+.cut-label { color:var(--text-2); flex:1; line-height:1.4; }
+.cut-row select { border:1px solid var(--border-2); border-radius:8px; padding:5px 10px; font-size:12.5px; font-weight:600; background:var(--surface-2); color:var(--text-1); font-family:'Sora',sans-serif; cursor:pointer; }
+.info-sm { font-size:12.5px; color:var(--text-2); margin-bottom:14px; line-height:1.6; padding:11px 14px; background:var(--surface-2); border-radius:var(--radius-md); border:1px solid var(--border); }
+.cut-note { font-size:12px; color:var(--text-3); margin-top:14px; line-height:1.6; font-style:italic; }
+.weights-card { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-top:14px; }
+.weights-title { font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); margin-bottom:12px; }
+#cuts-saved { display:none; font-size:12.5px; font-weight:600; color:var(--teal); margin-left:12px; }
+.disclaimer { width:100%; padding:12px 16px; background:var(--surface); border-radius:var(--radius-md); border:1px solid var(--border); font-size:11.5px; color:var(--text-3); line-height:1.65; text-align:center; position:relative; z-index:1; margin-top:20px; }
+.radar-wrap { display:flex; justify-content:center; margin:6px 0 2px; }
+@keyframes blockIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes blockOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-10px)} }
+.block-enter { animation:blockIn .32s cubic-bezier(.22,.68,0,1.2) both; }
+.block-exit { animation:blockOut .18s ease-in both; pointer-events:none; }
+.block-enter .q { opacity:0; animation:blockIn .3s cubic-bezier(.22,.68,0,1.2) both; }
+.block-enter .q:nth-child(1){animation-delay:.04s}
+.block-enter .q:nth-child(2){animation-delay:.10s}
+.block-enter .q:nth-child(3){animation-delay:.16s}
+.block-enter .q:nth-child(4){animation-delay:.22s}
+.block-enter .bh{animation:blockIn .28s ease both;animation-delay:.00s;opacity:0}
+.block-enter .nav{animation:blockIn .28s ease both;animation-delay:.28s;opacity:0}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">
+    <svg class="nav-logo" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="8" fill="#0d9488"/>
+      <path d="M10 9h8c2.2 0 4 1.8 4 4s-1.8 4-4 4l4.5 8h-3.5L15 17h-2v8h-3V9z" fill="white"/>
+      <circle cx="29" cy="9" r="3.5" fill="#5eead4"/>
+    </svg>
+    <span class="nav-brand-text">
+      <span class="top">AHP · Ortoprostética</span>
+      <span class="btm">RehabPro</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Início</a></li>
+    <li><a href="ferramenta.html" class="active">Ferramenta</a></li>
+    <li><a href="resultado.html">Resultado</a></li>
+    <li><a href="admin.html">Base de dados</a></li>
+  </ul>
+</nav>
+
+<div class="tool-page">
+  <div class="glow"></div>
+
+  <div class="header">
+    <div class="header-eyebrow">
+      <span class="header-dot"></span>
+      Sistema de apoio à decisão
+    </div>
+    <div class="header-title">Classificação <span>K-Level</span></div>
+    <div class="header-sub">AHP Híbrido · Amputados de membro inferior · Ferramenta clínica experimental</div>
+  </div>
+
+  <div class="app">
+    <div class="tabs">
+      <button class="tb on" onclick="switchTab('form', this)">Avaliação</button>
+      <button class="tb" onclick="switchTab('config', this)">Pesos AHP</button>
+      <button class="tb" onclick="switchTab('cuts', this)">Regras clínicas</button>
+    </div>
+
+    <div class="tab active" id="tab-form">
+      <div class="prog-wrap">
+        <div class="prog-track" id="prog">
+          <div class="ps active"></div><div class="ps"></div><div class="ps"></div>
+          <div class="ps"></div><div class="ps"></div><div class="ps"></div>
+        </div>
+        <div class="prog-label">
+          <span id="prog-block-label">Bloco 1 de 5 — Capacidade física atual</span>
+          <span id="prog-item-label">0 / 15 itens</span>
+        </div>
+      </div>
+      <div id="content"></div>
+    </div>
+
+    <div class="tab" id="tab-config">
+      <div class="bh">
+        <div class="bt">Pesos AHP</div>
+        <div class="bsub">Matriz par-a-par (escala Saaty 1–9). O valor a&#7522;&#11388; indica quantas vezes o critério da linha é mais importante que o da coluna. Fracções como ⅓ inserir como 0.33.</div>
+      </div>
+      <div class="matrix-wrap"><table class="mtx" id="ahp-matrix"></table></div>
+      <div style="margin-top:16px;display:flex;gap:12px;align-items:center;">
+        <button class="bn pri" onclick="computeAHP()">Calcular pesos</button>
+        <span class="crbadge" id="cr-display"></span>
+      </div>
+      <div id="weights-display"></div>
+    </div>
+
+    <div class="tab" id="tab-cuts">
+      <div class="bh">
+        <div class="bt">Regras clínicas</div>
+        <div class="bsub">Cada regra impõe um K máximo independentemente do score AHP.</div>
+      </div>
+      <div id="cuts-ui"></div>
+      <div style="margin-top:20px;display:flex;align-items:center;">
+        <button class="bn pri" onclick="saveCuts()">Guardar regras</button>
+        <span id="cuts-saved">✓ Guardado</span>
+      </div>
+      <p class="cut-note">Propostas provisórias. Validação pelo painel clínico obrigatória antes de uso real.</p>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    Ferramenta de apoio à decisão — não substitui avaliação clínica especializada.<br>
+    Utilização experimental. Valide sempre os resultados com fisiatras qualificados.
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="index.html">Início</a>
+    <a href="ferramenta.html">Ferramenta</a>
+    <a href="resultado.html">Resultado</a>
+    <a href="admin.html">Base de dados</a>
+  </div>
+  <p><strong>RehabPro · AHP K-Level · Engenharia Biomédica</strong></p>
+  <p>Ferramenta de apoio à decisão clínica · Uso exclusivo por profissionais de saúde habilitados</p>
+</footer>
+
+<script>
+const CRIT = ["Cap. física","Segurança","Dados clínicos","Fat. psicológicos","Contexto/obj."];
+const CRIT_IDS = ["C","B","A","D","E"];
+
+// Nova matriz: Segurança > Dados clínicos > Cap.física > Fat.psicológicos > Contexto/obj.
+// CR = 0.015 ✓
+const DEFAULT_MATRIX = [
+  [1.00, 0.33, 0.50, 2.00, 3.00],
+  [3.00, 1.00, 2.00, 4.00, 5.00],
+  [2.00, 0.50, 1.00, 3.00, 4.00],
+  [0.50, 0.25, 0.33, 1.00, 2.00],
+  [0.33, 0.20, 0.25, 0.50, 1.00],
+];
+
+let ahpMatrix = DEFAULT_MATRIX.map(r=>[...r]);
+let weights = [];
+let cr = 0;
+let answers = {};
+let prescAnswers = {};
+let currentBlock = 0;
+let cutRules = [];
+let phase = 'assessment'; // 'assessment' | 'prescription' | 'result'
+
+const BLOCKS = [
+  {id:"C",title:"Capacidade física atual",questions:[
+    {id:"transferencia",text:"Transferência cama-cadeira independente",
+     opts:[{l:"Sim, sem dificuldade",v:4},{l:"Sim, com esforço",v:3},{l:"Com supervisão / apoio parcial",v:2},{l:"Não consegue",v:1}]},
+    {id:"equilibrio",text:"Equilíbrio em ortostatismo monopodal (com auxiliar se necessário)",
+     opts:[{l:"Mantém > 60 seg estável",v:4},{l:"Mantém 30–60 seg",v:3},{l:"Mantém < 30 seg / necessita supervisão",v:2},{l:"Incapaz de se manter de pé",v:1}]},
+    {id:"forca_coto",text:"Força muscular e condição do coto",
+     opts:[{l:"Boa força, coto bem cicatrizado",v:4},{l:"Força razoável, coto adequado",v:3},{l:"Força reduzida ou coto problemático",v:2},{l:"Muito fraco / coto com complicações",v:1}]},
+    {id:"resistencia",text:"Resistência cardiovascular / tolerância ao esforço",
+     opts:[{l:"Sem limitação relevante",v:4},{l:"Limitação leve",v:3},{l:"Limitação moderada",v:2},{l:"Limitação severa",v:1}]},
+    {id:"quedas",text:"Histórico de quedas (últimos 6 meses)",
+     opts:[{l:"Nenhuma queda",v:4},{l:"1 queda sem consequências",v:3},{l:"2 ou mais quedas / 1 queda com lesão",v:2},{l:"Queda com hospitalização ou medo incapacitante de cair",v:1}]}
+  ]},
+  {id:"B",title:"Segurança",questions:[
+    {id:"uso_auxiliar",text:"Utilização de auxiliares de marcha (canadiana, andarilho)",
+     opts:[{l:"Usa correctamente e de forma consistente",v:4},{l:"Usa mas com técnica irregular",v:3},{l:"Usa apenas quando obrigado / negligencia",v:2},{l:"Recusa ou incapaz de usar",v:1}]},
+    {id:"vigilancia_coto",text:"Auto-vigilância do coto (inspecção, sinais de alerta)",
+     opts:[{l:"Inspecciona diariamente, reconhece sinais de risco",v:4},{l:"Inspecciona ocasionalmente",v:3},{l:"Raramente inspecciona / pouco consciente",v:2},{l:"Não inspecciona / incapaz de avaliar",v:1}]},
+    {id:"compliance_limitacoes",text:"Respeito pelos limites prescritos (carga, duração, terreno)",
+     opts:[{l:"Cumpre sistematicamente as indicações",v:4},{l:"Cumpre na maioria das situações",v:3},{l:"Frequentemente excede os limites",v:2},{l:"Ignora as limitações / comportamento de risco",v:1}]}
+  ]},
+  {id:"A",title:"Dados clínicos base",questions:[
+    {id:"nivel_amp",text:"Nível de amputação",
+     opts:[{l:"Transtibial",v:4},{l:"Desarticulação do joelho",v:3},{l:"Transfemoral",v:2},{l:"Hemipelvectomia / desarticulação da anca",v:1}]},
+    {id:"causa",text:"Causa da amputação",
+     opts:[{l:"Traumática",v:4},{l:"Oncológica",v:3},{l:"Vascular sem diabetes",v:2},{l:"Vascular com diabetes / neuropatia",v:1}]},
+    {id:"comorbilidades",text:"Comorbilidades major",
+     opts:[{l:"Nenhuma relevante",v:4},{l:"Doença cardíaca controlada",v:3},{l:"AVC com sequelas leves",v:2},{l:"Múltiplas comorbilidades graves",v:1}]}
+  ]},
+  {id:"D",title:"Fatores psicológicos e cognitivos",questions:[
+    {id:"motivacao",text:"Motivação e adesão à reabilitação",
+     opts:[{l:"Alta — objetivo claro, comprometido",v:4},{l:"Moderada — cooperante",v:3},{l:"Baixa — hesitante / passivo",v:2},{l:"Muito baixa / recusa colaboração",v:1}]},
+    {id:"saude_mental",text:"Saúde mental (depressão, ansiedade pós-amputação)",
+     opts:[{l:"Sem sinais relevantes",v:4},{l:"Sintomas leves controlados",v:3},{l:"Sintomas moderados",v:2},{l:"Perturbação severa",v:1}]},
+    {id:"cognicao",text:"Capacidade de aprendizagem / cognição",
+     opts:[{l:"Sem comprometimento",v:4},{l:"Comprometimento leve",v:3},{l:"Comprometimento moderado",v:2},{l:"Comprometimento severo",v:1}]}
+  ]},
+  {id:"E",title:"Contexto ambiental e objetivos",questions:[
+    {id:"habitacao",text:"Ambiente doméstico",
+     opts:[{l:"Sem barreiras",v:4},{l:"Barreiras moderadas",v:3},{l:"Barreiras significativas",v:2},{l:"Inacessível sem remodelação",v:1}]},
+    {id:"apoio",text:"Apoio familiar / rede de suporte",
+     opts:[{l:"Apoio sólido disponível",v:4},{l:"Apoio parcial",v:3},{l:"Apoio mínimo",v:2},{l:"Vive só, sem suporte",v:1}]},
+    {id:"objetivo",text:"Objetivo funcional declarado",
+     opts:[{l:"Retomar desporto / trabalho físico intenso",v:4},{l:"Deambular na comunidade",v:3},{l:"Mobilidade doméstica independente",v:2},{l:"Transferências / uso muito limitado",v:1}]}
+  ]}
+];
+
+// Perguntas de prescrição (Fase 2)
+const PRESC_QUESTIONS = [
+  {id:"maturidade_coto",text:"Maturidade e estabilidade volumétrica do coto",
+   opts:[
+     {l:"Coto maduro e estável (> 12 meses, volume estável)",v:3},
+     {l:"Coto em consolidação (6–12 meses, volume quase estável)",v:2},
+     {l:"Coto recente / primeira prótese (< 6 meses, ainda em retracção)",v:1}
+   ]},
+  {id:"tecido_coto",text:"Qualidade do tecido e tolerância à pressão",
+   opts:[
+     {l:"Pele saudável, boa tolerância à pressão",v:3},
+     {l:"Cicatriz aderente ou queloide localizado",v:2},
+     {l:"Pele frágil / atrófica / úlceras prévias",v:1}
+   ]}
+];
+
+// ── Database helpers ──
+// Reads component database from localStorage (managed by admin.html)
+const DB_KEY = 'rehabpro_components';
+
+function getDB() {
+  try {
+    const saved = localStorage.getItem(DB_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch(e) { return null; }
+}
+
+// Get best matching components from DB for a given context
+// Returns {ossur: string, ottobock: string, cat: string, notas: []}
+function dbGetComponent(tipo, klevel, nivel_amp_str, preferSecure) {
+  const db = getDB();
+  if (!db) return null;
+
+  const nivelMap = {4:'TT', 3:'DK', 2:'TF', 1:'HP'};
+  const nivelStr = nivelMap[nivel_amp_str] || 'TT';
+
+  // K-Level priority order (try exact match first, then adjacent)
+  const kPriority = {
+    'K0':['K0'],
+    'K1':['K1','K1-K2'],
+    'K2':['K2','K1-K2','K2-K3'],
+    'K3':preferSecure?['K2-K3','K3']:['K3','K2-K3','K3-K4'],
+    'K4':['K4','K3-K4']
+  };
+  const kLevels = kPriority['K'+klevel] || ['K'+klevel];
+
+  // Filter active components of the right type and nivel
+  const pool = db.filter(c =>
+    c.activo &&
+    c.tipo === tipo &&
+    (c.nivel === 'todos' || c.nivel === nivelStr || c.nivel === 'TT' && nivelStr === 'TT')
+  );
+
+  if (pool.length === 0) return null;
+
+  // Find best K-level match
+  let match = null;
+  for (const kl of kLevels) {
+    match = pool.find(c => c.klevel === kl);
+    if (match) break;
+  }
+  if (!match) match = pool[0];
+
+  // If secure profile, prefer microprocessor options
+  let secureMatch = null;
+  if (preferSecure) {
+    secureMatch = pool.find(c =>
+      (c.nome.toLowerCase().includes('proprio') ||
+       c.nome.toLowerCase().includes('meridium') ||
+       c.nome.toLowerCase().includes('navii') ||
+       c.nome.toLowerCase().includes('kenevo')) &&
+      kLevels.some(kl => c.klevel === kl || c.klevel.includes(kl.replace('K','')))
+    );
+  }
+  const chosen = secureMatch || match;
+
+  // Get partner brand
+  const brand = chosen.marca;
+  const other = brand === 'Össur' ? 'Ottobock' : 'Össur';
+  const partner = pool.find(c =>
+    c.activo &&
+    c.marca === other &&
+    kLevels.some(kl => c.klevel === kl || c.klevel === chosen.klevel)
+  );
+
+  const ossur    = brand === 'Össur' ? chosen.nome + (chosen.ref !== '—' ? ' ('+chosen.ref+')' : '') : (partner ? partner.nome + (partner.ref !== '—' ? ' ('+partner.ref+')' : '') : '—');
+  const ottobock = brand === 'Ottobock' ? chosen.nome + (chosen.ref !== '—' ? ' ('+chosen.ref+')' : '') : (partner ? partner.nome + (partner.ref !== '—' ? ' ('+partner.ref+')' : '') : '—');
+
+  return {
+    cat: chosen.cat,
+    ossur,
+    ottobock,
+    notas: chosen.notas ? [chosen.notas] : []
+  };
+}
+
+const K_INFO = [
+  {k:0,label:"K0",desc:"Sem potencial de deambulação protética. Foco em transferências e cadeira de rodas.",cls:"k0"},
+  {k:1,label:"K1",desc:"Deambulação limitada em superfície plana, velocidade fixa. Uso doméstico básico.",cls:"k1"},
+  {k:2,label:"K2",desc:"Supera pequenos obstáculos, rampas, passeios. Comunidade limitada.",cls:"k2"},
+  {k:3,label:"K3",desc:"Varia velocidade, sobe escadas, terreno irregular. Comunidade plena / retorno profissional.",cls:"k3"},
+  {k:4,label:"K4",desc:"Alta performance. Atletas, utilizadores muito ativos, crianças em crescimento.",cls:"k4"}
+];
+
+const DEFAULT_CUTS = [
+  {id:"no_stand",label:"Incapaz de se manter em ortostatismo (equilíbrio = 1)",qid:"equilibrio",op:"eq",val:1,maxK:1},
+  {id:"no_transfer",label:"Incapaz de fazer transferência (transferência = 1)",qid:"transferencia",op:"eq",val:1,maxK:0},
+  {id:"severe_comorbid",label:"Múltiplas comorbilidades graves",qid:"comorbilidades",op:"eq",val:1,maxK:1},
+  {id:"severe_mental",label:"Perturbação psicológica severa",qid:"saude_mental",op:"eq",val:1,maxK:1},
+  {id:"no_rehab",label:"Recusa colaboração em reabilitação",qid:"motivacao",op:"eq",val:1,maxK:0},
+  {id:"fall_hosp",label:"Queda com hospitalização ou medo incapacitante de cair",qid:"quedas",op:"eq",val:1,maxK:1}
+];
+cutRules = DEFAULT_CUTS.map(c=>({...c}));
+
+// ── Lógica de prescrição de componentes ──
+// Usa base de dados localStorage (admin.html) se disponível; fallback para valores hardcoded
+function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objetivo) {
+  const isTT  = nivel_amp === 4;
+  const isDK  = nivel_amp === 3;
+  const isTF  = nivel_amp === 2;
+  const isHP  = nivel_amp === 1;
+  const cotoRecente  = maturidade === 1;
+  const cotoMaduro   = maturidade === 3;
+  const telidoFragil = tecido === 1;
+  const cicatriz     = tecido === 2;
+  const cogOk        = cognicao >= 3;
+  const altaAtiv     = objetivo >= 3;
+  const segCompr     = answers["quedas"] <= 2 || answers["equilibrio"] <= 2;
+
+  const out = { pe: null, joelho: null, suspensao: null, notas: [] };
+
+  // ── K0 ──
+  if (finalK === 0) {
+    out.notas.push("K0 — Prótese não indicada neste momento. O perfil funcional actual não suporta deambulação protésica. Foco recomendado em mobilidade em cadeira de rodas, transferências e reabilitação física preparatória. Reavaliar após programa de fortalecimento e estabilização do coto.");
+    return out;
+  }
+
+  // ── HEMIPELVECTOMIA ──
+  if (isHP) {
+    out.notas.push("Hemipelvectomia / desarticulação da anca: prescrição altamente individualizada. Este instrumento fornece orientação geral — avaliação por equipa especializada obrigatória.");
+    out.pe = dbGetComponent('pe', finalK, nivel_amp, false) || { cat:"Pé dinâmico leve / baixo perfil", ossur:"Vari-Flex (baixo perfil)", ottobock:"Taleo LP (1C53)" };
+    out.joelho = dbGetComponent('joelho', finalK, nivel_amp, false) || { cat:"Joelho policêntrico com controlo de fase", ossur:"Total Knee 2000", ottobock:"3R60 EBS policêntrico" };
+    out.suspensao = { cat:"Sistema de arnês total", ossur:"—", ottobock:"Arnês pélvico integrado (customizado)" };
+    return out;
+  }
+
+  // ── PÉ ──
+  const dbPe = dbGetComponent('pe', finalK, nivel_amp, segCompr);
+  if (dbPe) {
+    out.pe = dbPe;
+    if (segCompr && finalK >= 2) {
+      out.notas.push("Perfil de segurança comprometido: pé microprocessado adaptativo recomendado — adapta o ângulo do tornozelo ao terreno em tempo real, reduzindo risco de queda.");
+    }
+    if (finalK === 4 && altaAtiv) {
+      out.notas.push("K4 desportivo: lâmina de corrida para uso desportivo específico. Para uso quotidiano intenso combinar com pé ESAR de alto desempenho.");
+    }
+  } else if (!getDB()) {
+    // Fallback — só sem DB no localStorage
+    if (finalK === 1) out.pe = {cat:"Pé básico multi-axial passivo",ossur:"Vari-Flex (baixo impacto)",ottobock:"Terion™ K2 (1C11) / SACH+™ (1S101)"};
+    else if (finalK === 2) out.pe = {cat:"Pé ESAR baixo impacto",ossur:"Vari-Flex® / Pro-Flex® Pivot",ottobock:"Kintrol (VS4) / Restore (VS5)"};
+    else if (finalK === 3) out.pe = altaAtiv ? {cat:"Pé ESAR alto desempenho",ossur:"Pro-Flex® XC / Pro-Flex® Terra",ottobock:"Taleo Adapt (1C59)"} : {cat:"Pé ESAR optimizado",ossur:"Pro-Flex® ST / LP",ottobock:"Taleo Harmony (1C52)"};
+    else out.pe = altaAtiv ? {cat:"Lâmina de carbono desportiva",ossur:"Cheetah® Xpanse",ottobock:"Springlite Sprinter (1E90)"} : {cat:"Pé ESAR alta performance com torsão",ossur:"Pro-Flex® XC Torsion",ottobock:"Triton® HD (1C64)"};
+  } else {
+    // DB existe mas nenhum pé activo para este perfil — não mostrar inativos
+    out.pe = {cat:"Nenhum pé activo na base de dados para K"+finalK,ossur:"—",ottobock:"—"};
+    out.notas.push("⚠ Sem pé protésico activo para K"+finalK+". Active componentes no separador 'Base de dados'.");
+  }
+
+  // ── JOELHO ──
+  if (isTF || isDK) {
+    const dbJo = dbGetComponent('joelho', finalK, nivel_amp, segCompr);
+    if (dbJo) {
+      out.joelho = dbJo;
+      if (isDK) out.notas.push("Desarticulação do joelho: côndilo femoral preservado permite suspensão condiliana. Espaço distal limita selecção — policêntrico de 4 eixos frequentemente a única opção viável.");
+      if (finalK === 2 && segCompr) out.notas.push("K2 com segurança comprometida: MPK com stumble recovery e configuração progressiva por modos de actividade recomendado.");
+      if (finalK === 4) out.notas.push("K4 transfemoral: C-Leg (Ottobock) é o MPK de referência com >100.000 fittings. Genium X3/X4 para utilizadores de muito alta actividade com modo corrida.");
+    } else if (!getDB()) {
+      // Fallback — só sem DB
+      if (finalK <= 1) out.joelho={cat:"Joelho com bloqueio manual",ossur:"Locking Knee LKN",ottobock:"3R41"};
+      else if (finalK === 2) out.joelho=segCompr?{cat:"MPK para baixa mobilidade",ossur:"Navii®",ottobock:"Kenevo"}:{cat:"Joelho policêntrico básico",ossur:"Total Knee® 1900",ottobock:"3R106-PRO"};
+      else if (finalK === 3) out.joelho=altaAtiv?{cat:"Joelho hidráulico rotativo",ossur:"Mauch® Knee Plus",ottobock:"3R80"}:{cat:"Joelho policêntrico hidráulico",ossur:"Total Knee® 2000",ottobock:"3R60 EBS"};
+      else out.joelho={cat:"MPK alta performance",ossur:"Rheo Knee® XC",ottobock:"C-Leg® / Genium X4"};
+    } else {
+      // DB existe mas nenhum joelho activo para este perfil
+      out.joelho = {cat:"Nenhum joelho activo na base de dados para K"+finalK,ossur:"—",ottobock:"—"};
+      out.notas.push("⚠ Sem joelho activo para K"+finalK+". Active componentes no separador 'Base de dados'.");
+    }
+  }
+
+  // ── SUSPENSÃO ──
+  let suspKey = '';
+  if (isTT) {
+    if (cotoRecente) suspKey = 'provisorio_tt';
+    else if (telidoFragil) suspKey = 'pin_tt';
+    else if (cicatriz) suspKey = cogOk ? 'sealin_tt' : 'pin_tt';
+    else if (cogOk && altaAtiv && cotoMaduro) suspKey = 'vacuum_tt';
+    else if (cogOk && cotoMaduro) suspKey = 'sealin_tt';
+    else suspKey = 'pin_tt';
+  } else if (isTF) {
+    if (cotoRecente || telidoFragil) suspKey = 'cinto_tf';
+    else if (cogOk && cotoMaduro && altaAtiv) suspKey = 'vacuum_tf';
+    else if (cogOk && cotoMaduro) suspKey = 'sealin_tf';
+    else suspKey = 'cinto_tf';
+  } else if (isDK) {
+    suspKey = 'dk';
+  }
+
+  const dbSusp = dbGetComponent('suspensao', finalK, nivel_amp, false);
+
+  // Suspensão usa DB mas com lógica clínica de selecção
+  const suspMap = {
+    'provisorio_tt': {cat:"Socket provisório — vácuo contra-indicado em coto recente",ossur:"Iceross® liner básico + PTB provisório",ottobock:"Socket preparatório + correa supracondiliana"},
+    'pin_tt':        {cat:"Pin lock — distribuição uniforme de pressão, facilidade de uso",ossur:"Iceross® Dermo Locking / Iceross® Synergy Locking + Icelock",ottobock:"Liner silicone + sistema de pin lock"},
+    'sealin_tt':     {cat:"Seal-In — sucção por membranas, bom controlo rotacional",ossur:"Iceross Seal-In® X5 / Iceross Dermo Seal-In®",ottobock:"Liner silicone + Harmony P2 (vácuo passivo)"},
+    'vacuum_tt':     {cat:"Elevated Vacuum — máximo controlo, mínimo pistoning",ossur:"Iceross Seal-In® X + Unity® System",ottobock:"Harmony P4 HD / E-Pulse (vácuo activo)"},
+    'cinto_tf':      {cat:"Cinto Silesian — tolerante à variação volumétrica",ossur:"Iceross® TF liner + cinto Silesian",ottobock:"Socket preparatório + cinto Silesian"},
+    'sealin_tf':     {cat:"Seal-In TF — sucção por membranas transfemoral",ossur:"Iceross Seal-In® X TF / Connect® TF",ottobock:"Liner TF sucção directa + cinto auxiliar"},
+    'vacuum_tf':     {cat:"Elevated Vacuum TF — gold standard alta actividade",ossur:"Iceross Seal-In® X TF + Unity® TF",ottobock:"Harmony P4 HD TF / E-Pulse TF"},
+    'dk':            {cat:"Suspensão condiliana — expansão do liner sobre côndilos femorais",ossur:"Iceross® Seal-In DK",ottobock:"Liner condiliano 3R62 KD compatível"}
+  };
+
+  out.suspensao = suspMap[suspKey] || dbSusp || suspMap['pin_tt'];
+
+  // Notas de suspensão
+  if (cotoRecente) out.notas.push("Coto recente: vácuo e Seal-In contra-indicados — volume instável impede vedação. Reavaliar em 3–6 meses.");
+  if (telidoFragil) out.notas.push("Pele frágil / atrófica: vácuo elevado contra-indicado — gradiente de pressão aumenta risco de úlcera. Pin lock recomendado.");
+  if (cicatriz) out.notas.push("Cicatriz aderente: inspecção diária das zonas de pressão. Suspender se rubor persistente > 20 min após remoção.");
+  if (suspKey === 'vacuum_tt') out.notas.push("Unity System (Össur): compatível com Pro-Flex XC, Pro-Flex Terra, Proprio Foot e Vari-Flex. Se pé prescrito for Ottobock, usar Harmony P4 HD.");
+  if (isTF && cogOk && cotoMaduro && altaAtiv) out.notas.push("Sleeve suction TF é problemático — limita flexão do joelho. Elevated Vacuum é o gold standard para TF activo.");
+
+  return out;
+}
+
+function renderPrescription(finalK) {
+  const nivel_amp = answers["nivel_amp"] || 4;
+  const maturidade = prescAnswers["maturidade_coto"] || 2;
+  const tecido = prescAnswers["tecido_coto"] || 3;
+  const cognicao = answers["cognicao"] || 3;
+  const objetivo = answers["objetivo"] || 2;
+  const presc = getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objetivo);
+
+  const nivelLabels = {4:"Transtibial", 3:"Desarticulação do joelho", 2:"Transfemoral", 1:"Hemipelvectomia"};
+  const maturLabels = {3:"Maduro (> 12 meses)", 2:"Em consolidação (6–12 meses)", 1:"Recente (< 6 meses)"};
+  const tecidoLabels = {3:"Pele saudável", 2:"Cicatriz aderente", 1:"Pele frágil / atrófica"};
+
+  // K0 — sem prótese
+  if (finalK === 0) {
+    const html = `
+      <div class="card" style="margin-top:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <div style="width:42px;height:42px;border-radius:10px;background:var(--red-dim);display:flex;align-items:center;justify-content:center;font-size:20px;">🚫</div>
+          <div>
+            <div style="font-size:17px;font-weight:700;color:var(--text-1);letter-spacing:-.02em;">Prótese não indicada</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px;">K0 — ${nivelLabels[nivel_amp]}</div>
+          </div>
+        </div>
+        <div class="flag fe" style="margin:0;">${presc.notas[0]}</div>
+      </div>
+      <div class="nav">
+        <button class="bn" onclick="reset()">← Nova avaliação</button>
+      </div>`;
+    animateContent(html);
+    return;
+  }
+
+  function compCard(title, data, icon) {
+    if (!data) return '';
+    return `<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px;">${icon} ${title}</div>
+      <div style="font-size:13.5px;font-weight:600;color:var(--text-1);margin-bottom:8px;">${data.cat}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;background:rgba(0,100,200,.08);border:1px solid rgba(0,100,200,.15);font-size:11.5px;font-weight:500;color:#1a56db;">
+          <span style="font-weight:700;">Össur</span> ${data.ossur}
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;background:rgba(220,80,0,.07);border:1px solid rgba(220,80,0,.15);font-size:11.5px;font-weight:500;color:#c2410c;">
+          <span style="font-weight:700;">Ottobock</span> ${data.ottobock}
+        </span>
+      </div>
+    </div>`;
+  }
+
+  const notesHtml = presc.notas.length > 0
+    ? presc.notas.map(n => `<div class="flag fw" style="font-size:12.5px;">${n}</div>`).join('')
+    : '';
+
+  const html = `
+    <div class="card" style="margin-top:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="width:42px;height:42px;border-radius:10px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:20px;">🦾</div>
+        <div>
+          <div style="font-size:17px;font-weight:700;color:var(--text-1);letter-spacing:-.02em;">Recomendação de componentes</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:2px;">${nivelLabels[nivel_amp]} · Coto: ${maturLabels[maturidade]} · Tecido: ${tecidoLabels[tecido]}</div>
+        </div>
+      </div>
+      ${compCard("Pé protésico", presc.pe, "🦶")}
+      ${presc.joelho ? compCard("Joelho protésico", presc.joelho, "🦵") : ''}
+      ${compCard("Suspensão / interface", presc.suspensao, "🔗")}
+    </div>
+    ${notesHtml}
+    <div class="nav">
+      <button class="bn" onclick="reset()">← Nova avaliação</button>
+      <button class="bn pri" onclick="window.location.href='resultado.html'">Ver relatório PDF →</button>
+    </div>`;
+
+  // Save prescription data to sessionStorage
+  const existing = JSON.parse(sessionStorage.getItem("ahpResultado")||"{}");
+  existing.prescricao = {
+    nivel_amp, maturidade, tecido,
+    nivelLabel: nivelLabels[nivel_amp],
+    maturLabel: maturLabels[maturidade],
+    tecidoLabel: tecidoLabels[tecido],
+    pe: presc.pe,
+    joelho: presc.joelho,
+    suspensao: presc.suspensao,
+    notas: presc.notas
+  };
+  sessionStorage.setItem("ahpResultado", JSON.stringify(existing));
+  animateContent(html);
+}
+
+function renderPrescQuestions(finalK) {
+  phase = 'prescription';
+  let html = `
+    <div class="bh">
+      <div class="bt">Dados para prescrição</div>
+      <div class="bsub">Informação adicional sobre o coto necessária para recomendar componentes e sistema de suspensão.</div>
+    </div>
+    ${PRESC_QUESTIONS.map(q => `
+      <div class="q">
+        <label class="q-label">${q.text}</label>
+        <div class="opts">
+          ${q.opts.map(o => `<button class="ob${prescAnswers[q.id]===o.v?" sel":""}" onclick="selectPrescAns('${q.id}',${o.v},this)">${o.l}</button>`).join("")}
+        </div>
+      </div>`).join("")}
+    <div class="nav">
+      <button class="bn" onclick="backToResult(${finalK})">← Resultado K</button>
+      <button class="bn pri" id="btn-presc" onclick="renderPrescription(${finalK})" ${isPrescComplete()?"":"disabled"}>
+        Ver recomendação →
+      </button>
+    </div>`;
+  animateContent(html);
+}
+
+function isPrescComplete() {
+  return PRESC_QUESTIONS.every(q => prescAnswers[q.id] !== undefined);
+}
+
+function selectPrescAns(qid, val, btn) {
+  prescAnswers[qid] = val;
+  btn.closest(".opts").querySelectorAll(".ob").forEach(b => b.classList.remove("sel"));
+  btn.classList.add("sel");
+  document.getElementById("btn-presc").disabled = !isPrescComplete();
+}
+
+function backToResult(finalK) {
+  phase = 'assessment';
+  renderResult();
+}
+
+function switchTab(t, btn){
+  document.querySelectorAll(".tab").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(".tb").forEach(el=>el.classList.remove("on"));
+  document.getElementById("tab-"+t).classList.add("active");
+  btn.classList.add("on");
+  if(t==="config") renderMatrix();
+  if(t==="cuts") renderCuts();
+}
+
+function _calcWeights(){
+  const n=5;
+  const colSums=Array(n).fill(0);
+  for(let j=0;j<n;j++) for(let i=0;i<n;i++) colSums[j]+=ahpMatrix[i][j];
+  const norm=ahpMatrix.map(row=>row.map((v,j)=>v/colSums[j]));
+  weights=norm.map(row=>row.reduce((a,b)=>a+b,0)/n);
+  const wSum=weights.reduce((a,b)=>a+b,0);
+  weights=weights.map(w=>w/wSum);
+  const Aw=ahpMatrix.map(row=>row.reduce((s,v,j)=>s+v*weights[j],0));
+  const lambdaMax=Aw.reduce((s,v,i)=>s+v/weights[i],0)/n;
+  const CI=(lambdaMax-n)/(n-1);
+  cr=CI/1.12;
+}
+function computeAHPSilent(){ _calcWeights(); }
+
+function computeAHP(){
+  const n=5;
+  const vals=[];
+  for(let i=0;i<n;i++){
+    vals.push([]);
+    for(let j=0;j<n;j++){
+      const el=document.getElementById(`m${i}_${j}`);
+      vals[i].push(el?parseFloat(el.value)||ahpMatrix[i][j]:ahpMatrix[i][j]);
+    }
+  }
+  ahpMatrix=vals;
+  _calcWeights();
+  const crEl=document.getElementById("cr-display");
+  crEl.className="crbadge "+(cr<0.1?"crok":"crwarn");
+  crEl.textContent=`CR = ${cr.toFixed(3)} ${cr<0.1?"✓":"⚠"}`;
+  renderWeightsDisplay("weights-display");
+}
+
+function renderWeightsDisplay(containerId){
+  const el=document.getElementById(containerId);
+  if(!el||weights.length===0) return;
+  el.innerHTML=`<div class="weights-card">
+    <div class="weights-title">Pesos derivados</div>
+    ${weights.map((w,i)=>`
+      <div class="srow">
+        <div class="slbl">${CRIT[i]}</div>
+        <div class="strk"><div class="sfil" style="width:${(w*100).toFixed(1)}%"></div></div>
+        <div class="sval">${(w*100).toFixed(0)}%</div>
+      </div>`).join("")}
+  </div>`;
+}
+
+function renderMatrix(){
+  if(weights.length===0) computeAHPSilent();
+  const n=5;
+  let html=`<tr><th></th>${CRIT.map(c=>`<th>${c}</th>`).join("")}</tr>`;
+  for(let i=0;i<n;i++){
+    html+=`<tr><th>${CRIT[i]}</th>`;
+    for(let j=0;j<n;j++){
+      if(i===j) html+=`<td class="diag">1</td>`;
+      else if(j<i) html+=`<td id="rec_${i}_${j}" style="color:var(--text-3);font-size:11px;">${(1/ahpMatrix[j][i]).toFixed(2)}</td>`;
+      else html+=`<td><input id="m${i}_${j}" type="number" min="0.11" max="9" step="0.01" value="${ahpMatrix[i][j]}" oninput="syncReciprocal(${i},${j})"></td>`;
+    }
+    html+=`</tr>`;
+  }
+  document.getElementById("ahp-matrix").innerHTML=html;
+  const crEl=document.getElementById("cr-display");
+  crEl.className="crbadge "+(cr<0.1?"crok":"crwarn");
+  crEl.textContent=cr>0?`CR = ${cr.toFixed(3)} ${cr<0.1?"✓":"⚠"}`:"";
+  renderWeightsDisplay("weights-display");
+}
+
+function syncReciprocal(i,j){
+  const el = document.getElementById(`m${i}_${j}`);
+  if(!el) return;
+  const val = parseFloat(el.value)||1;
+  ahpMatrix[i][j]=val;
+  ahpMatrix[j][i]=1/val;
+  const recCell = document.getElementById(`rec_${j}_${i}`);
+  if(recCell) recCell.textContent=(1/val).toFixed(2);
+  
+  // Recalcular pesos automaticamente ao alterar valores
+  computeAHP();
+}
+
+function renderCuts(){
+  let html=`<div class="info-sm">Cada regra define um K máximo quando a condição é verificada. Altere o K máximo para cada situação clínica.</div>`;
+  cutRules.forEach((r,idx)=>{
+    html+=`<div class="cut-row">
+      <span class="cut-label">${r.label}</span>
+      <span style="font-size:11.5px;color:var(--text-3);white-space:nowrap;">K máx.</span>
+      <select onchange="cutRules[${idx}].maxK=parseInt(this.value)">
+        ${[0,1,2,3,4].map(k=>`<option value="${k}"${r.maxK===k?" selected":""}>K${k}</option>`).join("")}
+      </select>
+    </div>`;
+  });
+  document.getElementById("cuts-ui").innerHTML=html;
+}
+
+function saveCuts(){
+  const el=document.getElementById("cuts-saved");
+  el.style.display="inline";
+  setTimeout(()=>el.style.display="none",2200);
+}
+
+function blockScore(blockIdx){
+  const b=BLOCKS[blockIdx];
+  let total=0,count=0;
+  b.questions.forEach(q=>{if(answers[q.id]!==undefined){total+=answers[q.id];count++;}});
+  return count>0?total/count:0;
+}
+function kScoreForCriterion(critIdx){ return (blockScore(critIdx)-1)/3; }
+
+function applyHardCuts(rawK){
+  let maxAllowed=4;
+  cutRules.forEach(r=>{
+    if(answers[r.qid]!==undefined){
+      if(r.op==="eq"&&answers[r.qid]===r.val) maxAllowed=Math.min(maxAllowed,r.maxK);
+      if(r.op==="lte"&&answers[r.qid]<=r.val) maxAllowed=Math.min(maxAllowed,r.maxK);
+    }
+  });
+  return Math.min(rawK,maxAllowed);
+}
+
+function computeResult(){
+  if(weights.length===0) computeAHPSilent();
+  let ahpScore=0;
+  BLOCKS.forEach((b,i)=>{
+    const cidx=CRIT_IDS.indexOf(b.id);
+    ahpScore+=kScoreForCriterion(i)*(weights[cidx]||0.2);
+  });
+  const rawK=Math.min(4,Math.round(ahpScore*4));
+  const finalK=applyHardCuts(rawK);
+  const activeCuts=[];
+  cutRules.forEach(r=>{
+    if(answers[r.qid]!==undefined&&r.op==="eq"&&answers[r.qid]===r.val&&r.maxK<rawK)
+      activeCuts.push(r);
+  });
+  return{ahpScore,rawK,finalK,activeCuts};
+}
+
+function isBlockComplete(idx){
+  return BLOCKS[idx].questions.every(q=>answers[q.id]!==undefined);
+}
+
+function renderProgress(){
+  const total=BLOCKS.length;
+  const isResult=currentBlock>=total;
+  document.getElementById("prog").innerHTML=
+    BLOCKS.map((_,i)=>`<div class="ps${(i<currentBlock||isResult)?" done":i===currentBlock?" active":""}"></div>`).join("")+
+    `<div class="ps${isResult?" done":""}"></div>`;
+  const totalQ=BLOCKS.reduce((a,b)=>a+b.questions.length,0);
+  const doneQ=BLOCKS.slice(0,currentBlock).reduce((a,b)=>a+b.questions.length,0);
+  document.getElementById("prog-block-label").textContent=isResult?"Avaliação concluída":`Bloco ${currentBlock+1} de ${total} — ${BLOCKS[currentBlock]?.title||""}`;
+  document.getElementById("prog-item-label").textContent=isResult?"":`${doneQ} / ${totalQ} itens`;
+}
+
+function animateContent(html, dir='forward') {
+  const content = document.getElementById('content');
+  // exit
+  content.classList.remove('block-enter');
+  content.classList.add('block-exit');
+  setTimeout(() => {
+    content.classList.remove('block-exit');
+    content.innerHTML = html;
+    content.classList.add('block-enter');
+  }, 180);
+}
+
+function renderBlock(){
+  renderProgress();
+  const b=BLOCKS[currentBlock];
+  const widx=CRIT_IDS.indexOf(b.id);
+  const w=weights.length>0?(weights[widx]*100).toFixed(0):"—";
+
+  const html=`
+    <div class="bh">
+      <div class="bt">${b.title} <span class="w-pill">peso ${w}%</span></div>
+    </div>
+    ${b.questions.map(q=>`
+      <div class="q">
+        <label class="q-label">${q.text}</label>
+        <div class="opts">
+          ${q.opts.map(o=>`<button class="ob${answers[q.id]===o.v?" sel":""}" onclick="selectAns('${q.id}',${o.v},this)">${o.l}</button>`).join("")}
+        </div>
+      </div>`).join("")}
+    <div class="nav">
+      <button class="bn" onclick="prev()" ${currentBlock===0?"disabled":""}>← Anterior</button>
+      <button class="bn pri" id="btn-next" onclick="next()" ${!isBlockComplete(currentBlock)?"disabled":""}>
+        ${currentBlock===BLOCKS.length-1?"Ver resultado →":"Próximo →"}
+      </button>
+    </div>`;
+  animateContent(html);
+}
+
+function selectAns(qid,val,btn){
+  answers[qid]=val;
+  btn.closest(".opts").querySelectorAll(".ob").forEach(b=>b.classList.remove("sel"));
+  btn.classList.add("sel");
+  document.getElementById("btn-next").disabled=!isBlockComplete(currentBlock);
+  renderProgress();
+}
+
+function next(){
+  if(!isBlockComplete(currentBlock)) return;
+  if(currentBlock<BLOCKS.length-1){currentBlock++;renderBlock('forward');}
+  else renderResult();
+}
+
+function prev(){if(currentBlock>0){currentBlock--;renderBlock('back');}}
+
+function buildRadarSVG(scores, labels) {
+  const cx = 130, cy = 130, R = 100, n = scores.length;
+  const angle = i => (Math.PI * 2 * i / n) - Math.PI / 2;
+  const pt = (r, i) => [
+    cx + r * Math.cos(angle(i)),
+    cy + r * Math.sin(angle(i))
+  ];
+
+  // grid rings
+  let rings = '';
+  [0.25, 0.5, 0.75, 1].forEach(frac => {
+    const pts = Array.from({length:n}, (_,i) => pt(R*frac, i).join(',')).join(' ');
+    rings += `<polygon points="${pts}" fill="none" stroke="rgba(79,102,200,.15)" stroke-width="1"/>`;
+  });
+
+  // axes
+  let axes = '';
+  for(let i=0;i<n;i++){
+    const [x,y]=pt(R,i);
+    axes += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(79,102,200,.18)" stroke-width="1"/>`;
+  }
+
+  // data polygon
+  const dataPts = scores.map((s,i) => pt(R * Math.max(0.04, s), i).join(',')).join(' ');
+
+  // labels
+  let lbls = '';
+  labels.forEach((lbl, i) => {
+    const [x,y] = pt(R + 18, i);
+    const anchor = x < cx - 5 ? 'end' : x > cx + 5 ? 'start' : 'middle';
+    lbls += `<text x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="${anchor}" font-size="10" font-family="Inter,sans-serif" fill="#4A5280" font-weight="500">${lbl}</text>`;
+  });
+
+  // dots
+  const dots = scores.map((s,i)=>{
+    const [x,y]=pt(R*Math.max(0.04,s),i);
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#3B6EF6" stroke="#fff" stroke-width="1.5"/>`;
+  }).join('');
+
+  return `<svg width="260" height="260" viewBox="0 0 260 260">
+    ${rings}${axes}
+    <polygon points="${dataPts}" fill="rgba(59,110,246,.13)" stroke="#3B6EF6" stroke-width="2" stroke-linejoin="round"/>
+    ${dots}${lbls}
+  </svg>`;
+}
+
+function renderResult(){
+  currentBlock=BLOCKS.length;
+  renderProgress();
+  const{ahpScore,rawK,finalK,activeCuts}=computeResult();
+  const ki=K_INFO[finalK];
+  const flags=[];
+  if(rawK!==finalK) flags.push({cls:"fe",msg:`Score AHP indicava <strong>K${rawK}</strong>. Reduzido para <strong>K${finalK}</strong> por regra de corte: ${activeCuts.map(r=>r.label).join("; ")}.`});
+  if(Math.abs(blockScore(0)-blockScore(3))>1.5) flags.push({cls:"fw",msg:"Discrepância entre capacidade física e estado psicológico — revisar antes de prescrever."});
+  if(answers["motivacao"]===4&&finalK<=1) flags.push({cls:"fi",msg:"Motivação elevada com K baixo — potencial de progressão. Reavaliar após reabilitação inicial."});
+  if(cr>=0.1) flags.push({cls:"fw",msg:`CR da matriz AHP = ${cr.toFixed(3)} > 0.10 — pesos inconsistentes. Recalibrar antes de uso real.`});
+
+  // ── Alertas de segurança ──
+  const safetyFlags = [];
+  if(answers["quedas"]<=2) safetyFlags.push("Histórico de quedas relevante — avaliar programa de treino de equilíbrio pré-protésico.");
+  if(answers["equilibrio"]<=2 && answers["motivacao"]>=3) safetyFlags.push("Equilíbrio comprometido com motivação elevada — risco de sobreestimar capacidade. Supervisão reforçada na fase inicial.");
+  if(answers["cognicao"]<=2 && answers["apoio"]<=2) safetyFlags.push("Comprometimento cognitivo sem rede de suporte adequada — risco de uso inseguro da prótese sem supervisão.");
+  if(answers["compliance_limitacoes"]<=2) safetyFlags.push("Padrão de incumprimento dos limites prescritos — incluir gestão de risco explícita no plano de reabilitação.");
+  if(answers["vigilancia_coto"]<=2) safetyFlags.push("Auto-vigilância do coto insuficiente — formação específica em cuidados do coto obrigatória antes da prescrição.");
+  if(answers["habitacao"]<=2 && answers["quedas"]<=2) safetyFlags.push("Ambiente doméstico com barreiras e histórico de quedas — avaliação domiciliária recomendada antes da alta.");
+  if(answers["objetivo"]>=3 && answers["equilibrio"]<=2) safetyFlags.push("Objectivo funcional ambicioso face ao equilíbrio actual — ajustar expectativas e definir metas faseadas.");
+  safetyFlags.forEach(msg => flags.push({cls:"fs",msg:"⚠ <strong>Segurança:</strong> "+msg}));
+
+  const radarScores = BLOCKS.map((_,i) => kScoreForCriterion(i));
+  const radarLabels = ["Cap. física","Segurança","Dados clin.","Psicológico","Contexto"];
+  const radarSVG = buildRadarSVG(radarScores, radarLabels);
+
+  const html = `
+    <div class="card">
+      <div class="k-hero">
+        <div class="k-circle ${ki.cls}c">${ki.label}</div>
+        <div class="k-hero-text">
+          <div class="k-badge ${ki.cls}b">Classificação AHP híbrido</div>
+          <div class="k-num" style="color:var(--${ki.cls})">${ki.label}</div>
+          <div class="k-desc">${ki.desc}</div>
+        </div>
+      </div>
+      <div class="div"></div>
+      <div class="radar-wrap">${radarSVG}</div>
+      <div class="div"></div>
+      <div class="score-section-title">Score por critério</div>
+      ${BLOCKS.map((b,i)=>{
+        const cidx=CRIT_IDS.indexOf(b.id);
+        const w=weights[cidx]||0.2;
+        const s=kScoreForCriterion(i);
+        return`<div class="srow">
+          <div class="slbl">${b.title.split(" ").slice(0,2).join(" ")} <span class="w-pill">${(w*100).toFixed(0)}%</span></div>
+          <div class="strk"><div class="sfil" style="width:${(s*100).toFixed(1)}%"></div></div>
+          <div class="sval">${(s*100).toFixed(0)}%</div>
+        </div>`;}).join("")}
+      <div class="div"></div>
+      <div class="cr-row">
+        <span>Score AHP ponderado: <strong style="color:var(--text-1)">${(ahpScore*100).toFixed(1)}%</strong></span>
+        <span class="crbadge ${cr<0.1?"crok":"crwarn"}">CR = ${cr.toFixed(3)} ${cr<0.1?"✓":"⚠"}</span>
+      </div>
+    </div>
+    ${flags.map(f=>`<div class="flag ${f.cls}">${f.msg}</div>`).join("")}
+    <div class="nav">
+      <button class="bn" onclick="reset()">← Nova avaliação</button>
+      <button class="bn pri" onclick="goToResult(${finalK},${ahpScore})">Ver relatório →</button>
+    </div>`;
+  // Save to sessionStorage for resultado.html
+  const safetyFlagsData = [];
+  if(answers["quedas"]<=2) safetyFlagsData.push("Histórico de quedas relevante.");
+  if(answers["equilibrio"]<=2 && answers["motivacao"]>=3) safetyFlagsData.push("Equilíbrio comprometido com motivação elevada.");
+  if(answers["cognicao"]<=2 && answers["apoio"]<=2) safetyFlagsData.push("Comprometimento cognitivo sem suporte adequado.");
+  if(answers["compliance_limitacoes"]<=2) safetyFlagsData.push("Incumprimento dos limites prescritos.");
+  if(answers["vigilancia_coto"]<=2) safetyFlagsData.push("Auto-vigilância do coto insuficiente.");
+  if(answers["habitacao"]<=2 && answers["quedas"]<=2) safetyFlagsData.push("Ambiente com barreiras + quedas.");
+  if(answers["objetivo"]>=3 && answers["equilibrio"]<=2) safetyFlagsData.push("Objectivo ambicioso face ao equilíbrio actual.");
+
+  const nivelLabels={4:"Transtibial",3:"Desarticulação do joelho",2:"Transfemoral",1:"Hemipelvectomia"};
+  sessionStorage.setItem("ahpResultado", JSON.stringify({
+    finalK, rawK, ahpScore,
+    cr: cr.toFixed(3),
+    crOk: cr < 0.1,
+    kDesc: ki.desc,
+    kLabel: ki.label,
+    nivel_amp: answers["nivel_amp"]||4,
+    nivelLabel: nivelLabels[answers["nivel_amp"]||4],
+    scores: BLOCKS.map((_,i)=>({
+      title: BLOCKS[i].title,
+      score: kScoreForCriterion(i),
+      weight: weights[CRIT_IDS.indexOf(BLOCKS[i].id)]||0.2
+    })),
+    answers: {...answers},
+    flags: flags.map(f=>f.msg),
+    safetyFlags: safetyFlagsData,
+    activeCuts: activeCuts.map(r=>r.label),
+    data: new Date().toLocaleDateString("pt-PT",{day:"2-digit",month:"long",year:"numeric"})
+  }));
+  animateContent(html);
+}
+
+function goToResult(finalK, ahpScore) {
+  renderPrescQuestions(finalK);
+}
+
+function reset(){currentBlock=0;answers={};prescAnswers={};phase='assessment';renderBlock('forward');}
+
+computeAHPSilent();
+
+function initApp() {
+  const content = document.getElementById('content');
+  if (!content) return;
+  // First render — skip animation, inject directly
+  const b = BLOCKS[currentBlock];
+  const widx = CRIT_IDS.indexOf(b.id);
+  const w = weights.length > 0 ? (weights[widx]*100).toFixed(0) : "—";
+  content.innerHTML = `
+    <div class="bh">
+      <div class="bt">${b.title} <span class="w-pill">peso ${w}%</span></div>
+    </div>
+    ${b.questions.map(q=>`
+      <div class="q">
+        <label class="q-label">${q.text}</label>
+        <div class="opts">
+          ${q.opts.map(o=>`<button class="ob${answers[q.id]===o.v?" sel":""}" onclick="selectAns('${q.id}',${o.v},this)">${o.l}</button>`).join("")}
+        </div>
+      </div>`).join("")}
+    <div class="nav">
+      <button class="bn" onclick="prev()" ${currentBlock===0?"disabled":""}>← Anterior</button>
+      <button class="bn pri" id="btn-next" onclick="next()" disabled>
+        ${currentBlock===BLOCKS.length-1?"Ver resultado →":"Próximo →"}
+      </button>
+    </div>`;
+  content.classList.add('block-enter');
+  renderProgress();
+}
+
+// Try immediately (script is at end of body, DOM should be ready)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+</script>
+</body>
+</html>
