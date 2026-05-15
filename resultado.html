@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Relatório Clínico · RehabPro</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .page-hero { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%); padding:3rem 1.5rem 2.5rem; border-bottom:1px solid rgba(13,148,136,0.2); }
+    .page-hero .inner { max-width:900px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; }
+    .page-hero h1 { font-size:clamp(1.4rem,3vw,2rem); font-weight:700; color:white; margin-bottom:0.4rem; }
+    .page-hero p  { color:rgba(255,255,255,0.5); font-size:0.875rem; }
+    .hero-actions { display:flex; gap:0.75rem; flex-wrap:wrap; }
+    main { padding:2.5rem 1.5rem 5rem; }
+    .result-wrap { max-width:900px; margin:0 auto; }
+
+    .empty-state { text-align:center; padding:5rem 2rem; background:var(--card); border:1px solid var(--border); border-radius:var(--r); }
+    .empty-state .icon { width:72px; height:72px; border-radius:1.25rem; background:rgba(13,148,136,0.1); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; }
+    .empty-state h2 { font-size:1.35rem; font-weight:700; margin-bottom:0.75rem; }
+    .empty-state p { color:var(--muted); margin-bottom:1.75rem; }
+
+    /* Patient info card (from Firestore) */
+    .patient-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:1.75rem; margin-bottom:1.25rem; box-shadow:0 2px 12px rgba(11,31,58,0.06); }
+    .patient-card-title { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem; }
+    .patient-card-title::before { content:''; width:8px; height:8px; border-radius:2px; background:var(--teal); }
+    .patient-fields { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    @media(max-width:600px){ .patient-fields { grid-template-columns:1fr 1fr; } }
+    .pf-item { display:flex; flex-direction:column; gap:0.25rem; }
+    .pf-label { font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); }
+    .pf-value { font-size:0.9rem; font-weight:500; color:var(--navy); }
+
+    .result-header-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r); box-shadow:0 4px 24px rgba(11,31,58,0.08); overflow:hidden; margin-bottom:1.25rem; }
+    .result-top { display:grid; grid-template-columns:auto 1fr; gap:1.75rem; padding:2rem; align-items:center; background:linear-gradient(135deg,rgba(13,148,136,0.06),rgba(11,31,58,0.02)); border-bottom:1px solid var(--border); }
+    .k-badge { width:110px; height:110px; border-radius:1.25rem; background:linear-gradient(135deg,var(--navy),var(--navy2)); display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(11,31,58,0.25); flex-shrink:0; }
+    .k-badge .k-label { font-size:0.62rem; font-weight:600; color:var(--teal); text-transform:uppercase; letter-spacing:0.1em; }
+    .k-badge .k-val   { font-family:'DM Mono',monospace; font-size:3.5rem; font-weight:500; color:white; line-height:1; }
+    .result-meta .comp { font-size:1.35rem; font-weight:700; line-height:1.3; margin-bottom:0.4rem; }
+    .result-meta .sub  { font-size:0.875rem; color:var(--muted); font-family:'DM Mono',monospace; }
+    .result-pills { display:flex; flex-wrap:wrap; gap:0.6rem; padding:1.25rem 2rem; border-bottom:1px solid var(--border); }
+    .result-conclusion { padding:1.5rem 2rem; font-size:0.95rem; line-height:1.8; color:var(--muted); }
+    .result-conclusion strong { color:var(--text); font-weight:600; }
+
+    .score-visual { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:1.5rem 2rem; margin-bottom:1.25rem; }
+    .score-visual-title { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:1.25rem; }
+    .k-levels { display:flex; gap:0.5rem; }
+    .k-lv { flex:1; padding:0.75rem 0.5rem; border-radius:0.75rem; text-align:center; font-family:'DM Mono',monospace; border:1.5px solid var(--border); transition:all 0.2s; }
+    .k-lv .kn { font-size:1.1rem; font-weight:500; display:block; }
+    .k-lv .kr { font-size:0.65rem; color:var(--muted); display:block; margin-top:0.2rem; line-height:1.3; }
+    .k-lv.active { background:var(--navy); border-color:var(--teal); }
+    .k-lv.active .kn { color:white; }
+    .k-lv.active .kr { color:var(--teal); }
+
+    .scores-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:1.5rem 2rem; margin-bottom:1.25rem; }
+    .score-bar-row { display:flex; align-items:center; gap:1rem; margin-bottom:0.875rem; }
+    .score-bar-name { font-size:0.85rem; font-weight:500; color:var(--text); width:150px; flex-shrink:0; }
+    .score-bar-wrap { flex:1; height:8px; background:rgba(13,148,136,0.1); border-radius:999px; overflow:hidden; }
+    .score-bar-fill { height:100%; background:linear-gradient(90deg,var(--teal),#38bdf8); border-radius:999px; }
+    .score-bar-pct { font-family:'DM Mono',monospace; font-size:0.8rem; font-weight:600; color:var(--teal2); width:38px; text-align:right; }
+    .score-bar-w { font-size:0.7rem; color:var(--muted); width:36px; }
+
+    .presc-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:1.5rem 2rem; margin-bottom:1.25rem; }
+    .presc-section { margin-bottom:1.25rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border); }
+    .presc-section:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+    .presc-icon-title { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.6rem; }
+    .presc-emoji { font-size:1.1rem; }
+    .presc-label { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
+    .presc-cat { font-size:0.95rem; font-weight:600; color:var(--navy); margin-bottom:0.6rem; }
+    .presc-pills { display:flex; gap:0.5rem; flex-wrap:wrap; }
+    .pill-ossur    { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+    .pill-ottobock { background:#fff7ed; color:#c2410c; border:1px solid #fed7aa; }
+    .presc-note { font-size:0.8rem; color:var(--muted); margin-top:0.6rem; line-height:1.55; padding:0.6rem 0.875rem; background:var(--off); border-radius:0.5rem; border-left:3px solid var(--amber); }
+
+    .flags-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:1.5rem 2rem; margin-bottom:1.25rem; }
+    .flag-item { display:flex; align-items:flex-start; gap:0.6rem; padding:0.6rem 0; border-bottom:1px solid var(--border); font-size:0.875rem; }
+    .flag-item:last-child { border-bottom:none; }
+    .flag-dot { width:8px; height:8px; border-radius:50%; margin-top:0.35rem; flex-shrink:0; }
+    .flag-dot.warn { background:var(--amber); }
+
+    .info-card-title { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); display:flex; align-items:center; gap:0.5rem; }
+    .info-card-title::before { content:''; width:8px; height:8px; border-radius:2px; }
+    .info-card-title.teal::before  { background:var(--teal); }
+    .info-card-title.blue::before  { background:var(--blue); }
+    .info-card-title.amber::before { background:var(--amber); }
+
+    .disclaimer-print { border:1px solid var(--border); border-radius:var(--r); padding:1.25rem 1.5rem; font-size:0.8rem; color:var(--muted); line-height:1.7; margin-bottom:1.25rem; background:linear-gradient(135deg,rgba(13,148,136,0.04),transparent); }
+    .disclaimer-print strong { color:var(--navy); }
+    .sig-line { margin-top:1.25rem; display:flex; gap:3rem; flex-wrap:wrap; }
+    .sig-field { flex:1; min-width:180px; }
+    .sig-field .sig-label { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem; }
+    .sig-field .sig-line-draw { border-bottom:1px solid var(--border); height:32px; }
+
+    .action-row { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .action-row .btn { flex:1; justify-content:center; min-width:180px; }
+
+    /* Loading */
+    .loading-state { text-align:center; padding:4rem; color:var(--muted); }
+    .spin { display:inline-block; width:32px; height:32px; border:3px solid rgba(13,148,136,.2); border-top-color:var(--teal); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    @media print {
+      nav,.page-hero,.action-row,footer,.no-print { display:none !important; }
+      body { background:white !important; }
+      main { padding-top:1rem; }
+      .result-header-card,.scores-card,.presc-card,.flags-card,.patient-card { box-shadow:none !important; }
+      .print-header { display:flex !important; justify-content:space-between; align-items:center; padding:1rem 0; border-bottom:2px solid #0d9488; margin-bottom:1.5rem; }
+      .print-header .ph-logo { display:flex; align-items:center; gap:0.75rem; }
+      .print-header .ph-title { font-size:1.25rem; font-weight:700; color:#0b1f3a; }
+      .print-header .ph-sub { font-size:0.75rem; color:#5c7a96; }
+      .print-header .ph-date { font-family:'DM Mono',monospace; font-size:0.8rem; color:#5c7a96; text-align:right; }
+    }
+    .print-header { display:none; }
+
+    @media(max-width:600px) {
+      .result-top { grid-template-columns:1fr; text-align:center; }
+      .k-badge { margin:0 auto; }
+      .k-levels { flex-wrap:wrap; }
+      .k-lv { min-width:80px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Auth loading screen -->
+<div id="auth-loading" style="position:fixed;inset:0;background:var(--off);display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="text-align:center">
+    <div class="spin"></div>
+    <div style="margin-top:1rem;font-family:'Sora',sans-serif;font-size:.875rem;color:var(--muted)">A verificar acesso...</div>
+  </div>
+</div>
+
+<nav>
+  <a href="dashboard.html" class="nav-brand">
+    <svg class="nav-logo" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="8" fill="#0d9488"/>
+      <path d="M10 9h8c2.2 0 4 1.8 4 4s-1.8 4-4 4l4.5 8h-3.5L15 17h-2v8h-3V9z" fill="white"/>
+      <circle cx="29" cy="9" r="3.5" fill="#5eead4"/>
+    </svg>
+    <span class="nav-brand-text">
+      <span class="top">AHP · Ortoprostética</span>
+      <span class="btm">RehabPro</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">Pacientes</a></li>
+    <li><a href="ferramenta.html">Ferramenta</a></li>
+    <li><a href="resultado.html" class="active">Resultado</a></li>
+    <li><a href="#" id="nav-logout" style="color:#f87171">Sair</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero no-print">
+  <div class="inner">
+    <div>
+      <h1>Relatório clínico</h1>
+      <p id="hero-sub">A carregar dados...</p>
+    </div>
+    <div class="hero-actions">
+      <button onclick="exportPDF()" class="btn btn-primary" id="btn-pdf" style="display:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Exportar PDF
+      </button>
+      <a href="dashboard.html" class="btn btn-outline">← Pacientes</a>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="result-wrap" id="result-wrap">
+    <div class="loading-state"><div class="spin"></div></div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="dashboard.html">Pacientes</a>
+    <a href="ferramenta.html">Ferramenta</a>
+    <a href="resultado.html">Resultado</a>
+  </div>
+  <p><strong>RehabPro · AHP K-Level · Engenharia Biomédica</strong></p>
+  <p>Ferramenta de apoio à decisão clínica · Uso exclusivo por profissionais de saúde habilitados</p>
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey:"AIzaSyCprkCj3YQdO6WtyXJvYBChCuUP_ge9JaU",
+    authDomain:"rehabpro-3a01e.firebaseapp.com",
+    projectId:"rehabpro-3a01e",
+    storageBucket:"rehabpro-3a01e.firebasestorage.app",
+    messagingSenderId:"690449795180",
+    appId:"1:690449795180:web:9fe2db77e3b496a197f049"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const KLASSES = [
+    {nivel:"K0",desc:"Sem potencial de marcha"},
+    {nivel:"K1",desc:"Marcha doméstica"},
+    {nivel:"K2",desc:"Comunitária limitada"},
+    {nivel:"K3",desc:"Comunitária plena"},
+    {nivel:"K4",desc:"Alta performance"}
+  ];
+
+  function pill(text, cls) {
+    return `<span class="pill ${cls}" style="font-size:0.75rem;padding:0.3rem 0.75rem">${text}</span>`;
+  }
+
+  function exportPDF() {
+    const d = window._ahpData;
+    const p = window._pacienteData;
+    const ph = document.querySelector(".print-header");
+    if (ph && p) {
+      ph.querySelector(".ph-title").textContent = p.nome || "Doente sem nome";
+      ph.querySelector(".ph-sub").textContent =
+        `${p.nascimento ? calcIdade(p.nascimento) + " anos · " : ""}${p.sexo || ""} · Proc.: ${p.processo || "—"}`;
+      ph.querySelector(".ph-date").innerHTML =
+        `Clínico: ${p.medicoNome || "—"}<br>${d?.data || new Date().toLocaleDateString("pt-PT",{day:"2-digit",month:"long",year:"numeric"})}`;
+    }
+    window.print();
+  }
+  window.exportPDF = exportPDF;
+
+  function calcIdade(nascimento) {
+    if (!nascimento) return "—";
+    return Math.floor((Date.now() - new Date(nascimento)) / 31557600000);
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    if (!userSnap.exists() || userSnap.data().status !== "ativo") {
+      await signOut(auth); window.location.href = "login.html?msg=pendente"; return;
+    }
+
+    // Auth OK
+    document.getElementById("auth-loading").style.display = "none";
+    document.getElementById("nav-logout").addEventListener("click", async (e) => {
+      e.preventDefault(); await signOut(auth); window.location.href = "login.html";
+    });
+
+    // Tentar carregar paciente do Firestore
+    const pacienteId = sessionStorage.getItem("pacienteId");
+    const wrap = document.getElementById("result-wrap");
+
+    if (!pacienteId) {
+      // Sem paciente — tentar sessionStorage legado
+      const raw = sessionStorage.getItem("ahpResultado");
+      if (raw) {
+        renderResultado(JSON.parse(raw), null);
+      } else {
+        renderEmpty();
+      }
+      return;
+    }
+
+    try {
+      const pacSnap = await getDoc(doc(db, "pacientes", pacienteId));
+      if (!pacSnap.exists()) { renderEmpty(); return; }
+
+      const paciente = pacSnap.data();
+      window._pacienteData = paciente;
+
+      if (!paciente.avaliacao) {
+        // Paciente existe mas sem avaliação
+        wrap.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <h2>${paciente.nome}</h2>
+            <p>Este paciente ainda não tem avaliação K-Level registada.</p>
+            <a href="ferramenta.html" class="btn btn-primary">Iniciar avaliação →</a>
+          </div>`;
+        document.getElementById("hero-sub").textContent = `${paciente.nome} · Sem avaliação`;
+        return;
+      }
+
+      renderResultado(paciente.avaliacao, paciente);
+    } catch(e) {
+      console.error(e);
+      renderEmpty();
+    }
+  });
+
+  function renderEmpty() {
+    document.getElementById("result-wrap").innerHTML = `
+      <div class="empty-state">
+        <div class="icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round">
+            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+          </svg>
+        </div>
+        <h2>Nenhuma avaliação encontrada</h2>
+        <p>Selecciona um paciente no dashboard ou completa uma avaliação AHP.</p>
+        <a href="dashboard.html" class="btn btn-primary">← Ir para os pacientes</a>
+      </div>`;
+    document.getElementById("hero-sub").textContent = "Sem dados";
+  }
+
+  function renderResultado(d, paciente) {
+    window._ahpData = d;
+    const nivelLabels = {4:"Transtibial",3:"Desarticulação do joelho",2:"Transfemoral",1:"Hemipelvectomia"};
+    const dataStr = d.data
+      ? (d.data.seconds ? new Date(d.data.seconds*1000).toLocaleDateString("pt-PT",{day:"2-digit",month:"long",year:"numeric"}) : d.data)
+      : "—";
+
+    document.getElementById("hero-sub").textContent =
+      `${paciente?.nome || ""} · ${nivelLabels[d.nivel_amp] || d.nivelLabel || ""} · K${d.finalK} · ${dataStr}`;
+    document.getElementById("btn-pdf").style.display = "inline-flex";
+
+    const kLevels = KLASSES.map(kl =>
+      `<div class="k-lv ${kl.nivel === "K"+d.finalK ? "active" : ""}">
+        <span class="kn">${kl.nivel}</span>
+        <span class="kr">${kl.desc}</span>
+      </div>`
+    ).join("");
+
+    const crBadge = d.crOk
+      ? `<span class="pill pill-teal">CR = ${d.cr} ✓</span>`
+      : `<span class="pill pill-amber">CR = ${d.cr} ⚠</span>`;
+
+    const scoresHtml = (d.scores||[]).map(s => `
+      <div class="score-bar-row">
+        <div class="score-bar-name">${s.title.split(" ").slice(0,3).join(" ")}</div>
+        <span class="score-bar-w">${(s.weight*100).toFixed(0)}%</span>
+        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:${(s.score*100).toFixed(1)}%"></div></div>
+        <div class="score-bar-pct">${(s.score*100).toFixed(0)}%</div>
+      </div>`).join("");
+
+    let prescHtml = "";
+    if (d.prescricao) {
+      const pr = d.prescricao;
+      function prescSection(icon, label, data) {
+        if (!data) return "";
+        return `<div class="presc-section">
+          <div class="presc-icon-title">
+            <span class="presc-emoji">${icon}</span>
+            <span class="presc-label">${label}</span>
+          </div>
+          <div class="presc-cat">${data.cat}</div>
+          <div class="presc-pills">
+            <span class="pill pill-ossur" style="font-size:.75rem;padding:.3rem .75rem"><strong>Össur</strong> ${data.ossur}</span>
+            <span class="pill pill-ottobock" style="font-size:.75rem;padding:.3rem .75rem"><strong>Ottobock</strong> ${data.ottobock}</span>
+          </div>
+        </div>`;
+      }
+      prescHtml = `
+        <div class="presc-card">
+          <div class="info-card-title teal" style="margin-bottom:1.25rem">
+            Recomendação de componentes · ${pr.nivelLabel||""} · ${pr.maturLabel||""} · ${pr.tecidoLabel||""}
+          </div>
+          ${prescSection("🦶","Pé protésico",pr.pe)}
+          ${pr.joelho ? prescSection("🦵","Joelho protésico",pr.joelho) : ""}
+          ${prescSection("🔗","Suspensão / interface",pr.suspensao)}
+          ${(pr.notas||[]).map(n=>`<div class="presc-note">${n}</div>`).join("")}
+        </div>`;
+    }
+
+    const allFlags = [...(d.safetyFlags||[]), ...(d.activeCuts||[]).map(c=>`Regra de corte activa: ${c}`)];
+    const flagsHtml = allFlags.length > 0 ? `
+      <div class="flags-card">
+        <div class="info-card-title amber" style="margin-bottom:1rem">Alertas e regras de corte (${allFlags.length})</div>
+        ${allFlags.map(f=>`
+          <div class="flag-item">
+            <div class="flag-dot warn"></div>
+            <span>${f}</span>
+          </div>`).join("")}
+      </div>` : "";
+
+    // Patient info block (from Firestore)
+    const patientBlock = paciente ? `
+      <div class="patient-card">
+        <div class="patient-card-title">Dados do paciente</div>
+        <div class="patient-fields">
+          <div class="pf-item"><div class="pf-label">Nome</div><div class="pf-value">${paciente.nome || "—"}</div></div>
+          <div class="pf-item"><div class="pf-label">Idade</div><div class="pf-value">${calcIdade(paciente.nascimento)} anos</div></div>
+          <div class="pf-item"><div class="pf-label">Sexo</div><div class="pf-value">${paciente.sexo || "—"}</div></div>
+          <div class="pf-item"><div class="pf-label">Peso</div><div class="pf-value">${paciente.peso ? paciente.peso + " kg" : "—"}</div></div>
+          <div class="pf-item"><div class="pf-label">Altura</div><div class="pf-value">${paciente.altura ? paciente.altura + " cm" : "—"}</div></div>
+          <div class="pf-item"><div class="pf-label">Nº processo</div><div class="pf-value">${paciente.processo || "—"}</div></div>
+        </div>
+        <div class="patient-fields" style="margin-top:.875rem">
+          <div class="pf-item"><div class="pf-label">Diagnóstico</div><div class="pf-value">${paciente.diagnostico || "—"}</div></div>
+          <div class="pf-item"><div class="pf-label">Clínico responsável</div><div class="pf-value">${paciente.medicoNome || "—"}</div></div>
+          <div class="pf-item"><div class="pf-label">Data da avaliação</div><div class="pf-value">${dataStr}</div></div>
+        </div>
+      </div>` : "";
+
+    document.getElementById("result-wrap").innerHTML = `
+      <div class="print-header">
+        <div class="ph-logo">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <rect width="36" height="36" rx="8" fill="#0d9488"/>
+            <path d="M10 9h8c2.2 0 4 1.8 4 4s-1.8 4-4 4l4.5 8h-3.5L15 17h-2v8h-3V9z" fill="white"/>
+            <circle cx="29" cy="9" r="3.5" fill="#5eead4"/>
+          </svg>
+          <div>
+            <div class="ph-title">${paciente?.nome || "Relatório Clínico"}</div>
+            <div class="ph-sub">RehabPro · AHP K-Level · Protótipo experimental</div>
+          </div>
+        </div>
+        <div class="ph-date">Clínico: ${paciente?.medicoNome || "—"}<br>${dataStr}</div>
+      </div>
+
+      ${patientBlock}
+
+      <div class="result-header-card">
+        <div class="result-top">
+          <div class="k-badge">
+            <span class="k-label">K-Level</span>
+            <span class="k-val">K${d.finalK}</span>
+          </div>
+          <div class="result-meta">
+            <div class="comp">${d.kDesc || "—"}</div>
+            <div class="sub">${nivelLabels[d.nivel_amp] || d.nivelLabel || "—"} · Score AHP: ${(d.ahpScore*100).toFixed(1)}%</div>
+          </div>
+        </div>
+        <div class="result-pills">
+          ${pill(`K${d.finalK}`, "pill-teal")}
+          ${pill(`Score ${(d.ahpScore*100).toFixed(1)}%`, "pill-blue")}
+          ${crBadge}
+          ${d.rawK !== d.finalK ? pill(`Reduzido de K${d.rawK} por regra de corte`, "pill-amber") : ""}
+        </div>
+        <div class="result-conclusion">
+          <p>
+            Doente classificado como <strong>K${d.finalK}</strong> — ${d.kDesc}.
+            Score AHP ponderado de <strong>${(d.ahpScore*100).toFixed(1)}%</strong>
+            com CR = <strong>${d.cr}</strong>${d.crOk ? " ✓" : " (⚠ rever consistência)"}.
+            Nível de amputação: <strong>${nivelLabels[d.nivel_amp] || d.nivelLabel || "—"}</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="score-visual">
+        <div class="score-visual-title">Posicionamento no espectro funcional</div>
+        <div class="k-levels">${kLevels}</div>
+      </div>
+
+      <div class="scores-card">
+        <div class="info-card-title blue" style="margin-bottom:1.25rem">Score AHP por domínio</div>
+        ${scoresHtml}
+        <div style="margin-top:1rem;font-size:.78rem;color:var(--muted)">
+          Legenda: <strong style="color:var(--navy)">%</strong> = peso AHP · barra = score normalizado [0,1]
+        </div>
+      </div>
+
+      ${prescHtml}
+      ${flagsHtml}
+
+      <div class="disclaimer-print">
+        <strong>Nota clínica:</strong> Este relatório foi gerado por um sistema de apoio à decisão experimental baseado em AHP (Analytic Hierarchy Process, Saaty 1980). Não constitui diagnóstico médico nem prescrição definitiva. Todos os resultados devem ser validados por médico fisiatra ou ortoprostético qualificado antes de qualquer prescrição.
+        <div class="sig-line">
+          <div class="sig-field"><div class="sig-label">Assinatura do clínico</div><div class="sig-line-draw"></div></div>
+          <div class="sig-field"><div class="sig-label">Data e carimbo</div><div class="sig-line-draw"></div></div>
+          <div class="sig-field"><div class="sig-label">Nº cédula profissional</div><div class="sig-line-draw"></div></div>
+        </div>
+      </div>
+
+      <div class="action-row no-print">
+        <button onclick="exportPDF()" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Exportar PDF
+        </button>
+        <a href="dashboard.html" class="btn btn-outline">← Pacientes</a>
+        <a href="ferramenta.html" class="btn btn-outline">Nova avaliação</a>
+      </div>
+    `;
+  }
+</script>
+</body>
+</html>
