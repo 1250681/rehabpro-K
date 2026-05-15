@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acesso · RehabPro</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    body { background: var(--navy); display:flex; flex-direction:column; min-height:100vh; align-items:center; justify-content:center; padding: 2rem; }
+
+    .login-wrap { width:100%; max-width:440px; }
+
+    .login-brand { text-align:center; margin-bottom:2.5rem; }
+    .login-brand svg { width:52px; height:52px; margin-bottom:.875rem; }
+    .login-brand h1 { font-size:1.75rem; font-weight:800; color:#fff; letter-spacing:-.03em; margin-bottom:.25rem; }
+    .login-brand p  { font-size:.85rem; color:rgba(255,255,255,.45); }
+
+    .login-card {
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(13,148,136,.25);
+      border-radius:1.125rem;
+      padding:2rem;
+      backdrop-filter:blur(20px);
+    }
+
+    /* Tabs */
+    .auth-tabs { display:flex; gap:2px; background:rgba(255,255,255,.05); border-radius:.6rem; padding:3px; margin-bottom:1.75rem; }
+    .auth-tab  { flex:1; padding:.55rem; font-size:.85rem; font-weight:600; text-align:center; cursor:pointer; border-radius:.45rem; color:rgba(255,255,255,.45); transition:all .2s; border:none; background:transparent; font-family:'Sora',sans-serif; }
+    .auth-tab.on { background:var(--teal); color:#fff; }
+
+    .auth-form { display:none; }
+    .auth-form.active { display:block; }
+
+    /* Fields */
+    .f { margin-bottom:1rem; }
+    .f label { display:block; font-size:.68rem; font-weight:600; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.4); margin-bottom:.45rem; }
+    .f input, .f select {
+      width:100%; padding:.8rem 1rem; font-size:.9rem; font-family:'Sora',sans-serif;
+      background:rgba(255,255,255,.07); border:1.5px solid rgba(255,255,255,.1);
+      border-radius:.7rem; color:#fff; transition:all .2s; appearance:none;
+    }
+    .f input::placeholder { color:rgba(255,255,255,.25); }
+    .f input:focus, .f select:focus { outline:none; border-color:var(--teal); background:rgba(255,255,255,.1); box-shadow:0 0 0 3px rgba(13,148,136,.2); }
+    .f select option { background:#1a3a5c; color:#fff; }
+
+    .f-row { display:grid; grid-template-columns:1fr 1fr; gap:.875rem; }
+
+    /* Submit */
+    .btn-auth {
+      width:100%; padding:.9rem; font-size:.95rem; font-weight:700;
+      font-family:'Sora',sans-serif; border:none; border-radius:.7rem; cursor:pointer;
+      background:linear-gradient(90deg,var(--teal),var(--teal2));
+      color:#fff; box-shadow:0 8px 20px rgba(13,148,136,.3);
+      transition:all .2s; margin-top:.5rem;
+    }
+    .btn-auth:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(13,148,136,.4); }
+    .btn-auth:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+    /* Alert */
+    .alert { border-radius:.6rem; padding:.875rem 1rem; font-size:.85rem; line-height:1.5; margin-bottom:1rem; display:none; }
+    .alert.show { display:block; }
+    .alert-err  { background:rgba(239,68,68,.15); border:1px solid rgba(239,68,68,.3); color:#fca5a5; }
+    .alert-ok   { background:rgba(13,148,136,.15); border:1px solid rgba(13,148,136,.3); color:#5eead4; }
+    .alert-warn { background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.3); color:#fcd34d; }
+
+    .login-footer { text-align:center; margin-top:1.5rem; font-size:.78rem; color:rgba(255,255,255,.3); line-height:1.7; }
+
+    /* Spinner */
+    .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-brand">
+    <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="52" height="52" rx="12" fill="rgba(13,148,136,.25)"/>
+      <path d="M14 38V20l12-9 12 9v18" stroke="#0d9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M21 38v-9h10v9" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>RehabPro</h1>
+    <p>Sistema de Classificação K-Level · AHP Híbrido</p>
+  </div>
+
+  <div class="login-card">
+    <div id="alert-box" class="alert"></div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab on" onclick="showTab('login',this)">Entrar</button>
+      <button class="auth-tab" onclick="showTab('registo',this)">Solicitar acesso</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="auth-form active" id="form-login">
+      <div class="f">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="email@hospital.pt" autocomplete="email"/>
+      </div>
+      <div class="f">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn-auth" onclick="doLogin()" id="btn-login">Entrar</button>
+    </div>
+
+    <!-- REGISTO -->
+    <div class="auth-form" id="form-registo">
+      <div class="f-row">
+        <div class="f">
+          <label>Nome completo</label>
+          <input type="text" id="reg-nome" placeholder="Dr. Nome Apelido"/>
+        </div>
+        <div class="f">
+          <label>Cédula / Nº ordem</label>
+          <input type="text" id="reg-cedula" placeholder="OM-12345"/>
+        </div>
+      </div>
+      <div class="f">
+        <label>Especialidade</label>
+        <select id="reg-especialidade">
+          <option value="">Seleccionar...</option>
+          <option>Fisiatria</option>
+          <option>Ortopedia</option>
+          <option>Ortoprostética</option>
+          <option>Fisioterapia</option>
+          <option>Medicina Geral e Familiar</option>
+          <option>Outra</option>
+        </select>
+      </div>
+      <div class="f">
+        <label>Instituição / Hospital</label>
+        <input type="text" id="reg-instituicao" placeholder="Hospital / Clínica"/>
+      </div>
+      <div class="f">
+        <label>Email profissional</label>
+        <input type="email" id="reg-email" placeholder="email@hospital.pt"/>
+      </div>
+      <div class="f-row">
+        <div class="f">
+          <label>Password</label>
+          <input type="password" id="reg-pass" placeholder="mín. 8 caracteres"/>
+        </div>
+        <div class="f">
+          <label>Confirmar</label>
+          <input type="password" id="reg-pass2" placeholder="repetir"/>
+        </div>
+      </div>
+      <button class="btn-auth" onclick="doRegisto()" id="btn-reg">Enviar pedido de acesso</button>
+    </div>
+  </div>
+
+  <div class="login-footer">
+    Ferramenta de apoio à decisão clínica · Uso exclusivo por profissionais habilitados<br>
+    Acesso condicionado a aprovação pelo administrador
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+           createUserWithEmailAndPassword }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCprkCj3YQdO6WtyXJvYBChCuUP_ge9JaU",
+    authDomain:        "rehabpro-3a01e.firebaseapp.com",
+    projectId:         "rehabpro-3a01e",
+    storageBucket:     "rehabpro-3a01e.firebasestorage.app",
+    messagingSenderId: "690449795180",
+    appId:             "1:690449795180:web:9fe2db77e3b496a197f049"
+  };
+  const ADMIN_EMAIL = "joaosantos3188@gmail.com";
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  /* Redirecionar se já autenticado */
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (!snap.exists()) return;
+    const p = snap.data();
+    if (p.status === "ativo") {
+      window.location.href = p.role === "admin" ? "admin.html" : "dashboard.html";
+    }
+  });
+
+  /* Mostrar alerta */
+  function alert(msg, type = "err") {
+    const el = document.getElementById("alert-box");
+    el.className = `alert alert-${type} show`;
+    el.textContent = msg;
+  }
+  function clearAlert() {
+    const el = document.getElementById("alert-box");
+    el.className = "alert";
+    el.textContent = "";
+  }
+
+  /* Mensagens de URL */
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("msg") === "pendente")
+    alert("O teu acesso ainda está a aguardar aprovação pelo administrador.", "warn");
+  if (params.get("msg") === "rejeitado")
+    alert("O teu pedido de acesso foi rejeitado. Contacta o administrador.", "err");
+
+  /* Tab switch */
+  window.showTab = (tab, btn) => {
+    document.querySelectorAll(".auth-form").forEach(f => f.classList.remove("active"));
+    document.querySelectorAll(".auth-tab").forEach(b => b.classList.remove("on"));
+    document.getElementById("form-" + tab).classList.add("active");
+    btn.classList.add("on");
+    clearAlert();
+  };
+
+  /* LOGIN */
+  window.doLogin = async () => {
+    clearAlert();
+    const email = document.getElementById("login-email").value.trim();
+    const pass  = document.getElementById("login-pass").value;
+    if (!email || !pass) { alert("Preenche email e password."); return; }
+    const btn = document.getElementById("btn-login");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>A entrar...';
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      const snap = await getDoc(doc(db, "users", cred.user.uid));
+      if (!snap.exists()) { alert("Conta sem perfil. Contacta o administrador."); btn.disabled=false; btn.textContent="Entrar"; return; }
+      const p = snap.data();
+      if (p.status === "pendente") { alert("O teu acesso está pendente de aprovação.", "warn"); await auth.signOut(); btn.disabled=false; btn.textContent="Entrar"; return; }
+      if (p.status === "rejeitado") { alert("O teu acesso foi rejeitado. Contacta o administrador."); await auth.signOut(); btn.disabled=false; btn.textContent="Entrar"; return; }
+      window.location.href = p.role === "admin" ? "admin.html" : "dashboard.html";
+    } catch(e) {
+      const msgs = {
+        "auth/invalid-credential":"Email ou password incorrectos.",
+        "auth/user-not-found":"Email não encontrado.",
+        "auth/wrong-password":"Password incorrecta.",
+        "auth/too-many-requests":"Demasiadas tentativas. Aguarda alguns minutos."
+      };
+      alert(msgs[e.code] || "Erro ao entrar. Tenta novamente.");
+      btn.disabled = false; btn.textContent = "Entrar";
+    }
+  };
+
+  /* REGISTO */
+  window.doRegisto = async () => {
+    clearAlert();
+    const nome         = document.getElementById("reg-nome").value.trim();
+    const cedula       = document.getElementById("reg-cedula").value.trim();
+    const especialidade= document.getElementById("reg-especialidade").value;
+    const instituicao  = document.getElementById("reg-instituicao").value.trim();
+    const email        = document.getElementById("reg-email").value.trim();
+    const pass         = document.getElementById("reg-pass").value;
+    const pass2        = document.getElementById("reg-pass2").value;
+
+    if (!nome||!cedula||!especialidade||!instituicao||!email||!pass||!pass2) {
+      alert("Preenche todos os campos."); return;
+    }
+    if (pass.length < 8) { alert("A password deve ter pelo menos 8 caracteres."); return; }
+    if (pass !== pass2)  { alert("As passwords não coincidem."); return; }
+
+    const btn = document.getElementById("btn-reg");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>A enviar pedido...';
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      const isAdmin = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      await setDoc(doc(db, "users", cred.user.uid), {
+        uid:          cred.user.uid,
+        nome, cedula, especialidade, instituicao, email,
+        role:         isAdmin ? "admin" : "medico",
+        status:       isAdmin ? "ativo"    : "pendente",
+        criadoEm:     serverTimestamp()
+      });
+      if (isAdmin) {
+        window.location.href = "admin.html";
+      } else {
+        await auth.signOut();
+        alert("Pedido enviado com sucesso! Aguarda a aprovação do administrador.", "ok");
+        btn.disabled = false; btn.textContent = "Enviar pedido de acesso";
+      }
+    } catch(e) {
+      const msgs = {
+        "auth/email-already-in-use":"Este email já está registado. Usa o separador 'Entrar'.",
+        "auth/invalid-email":"Email inválido.",
+        "auth/weak-password":"Password demasiado fraca."
+      };
+      alert(msgs[e.code] || "Erro ao criar conta. Tenta novamente.");
+      btn.disabled = false; btn.textContent = "Enviar pedido de acesso";
+    }
+  };
+
+  /* Enter key */
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    const loginActive = document.getElementById("form-login").classList.contains("active");
+    if (loginActive) window.doLogin();
+    else window.doRegisto();
+  });
+</script>
+</body>
+</html>
