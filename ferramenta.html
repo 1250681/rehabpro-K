@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ferramenta AHP · RehabPro</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg:#E8EEF8; --surface:#FFFFFF; --surface-2:#F4F6FF;
+  --border:rgba(79,102,200,.12); --border-2:rgba(79,102,200,.22);
+  --text-1:#0F1535; --text-2:#4A5280; --text-3:#8B95C0;
+  --accent:#3B6EF6; --accent-glow:rgba(59,110,246,.18); --accent-dim:rgba(59,110,246,.09);
+  --teal:#0B9488; --teal-dim:rgba(11,148,136,.1);
+  --amber:#B45309; --red:#DC2626; --red-dim:rgba(220,38,38,.09);
+  --k0:#DC2626; --k0-dim:rgba(220,38,38,.1);
+  --k1:#D97706; --k1-dim:rgba(217,119,6,.1);
+  --k2:#2563EB; --k2-dim:rgba(37,99,235,.1);
+  --k3:#059669; --k3-dim:rgba(5,150,105,.1);
+  --k4:#7C3AED; --k4-dim:rgba(124,58,237,.1);
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:20px;
+}
+body { background:#E8EEF8 !important; cursor:default !important; display:block !important; padding:0 !important; }
+body::before { display:none !important; }
+.tool-page { min-height:calc(100vh - 64px); background:#E8EEF8; display:flex; flex-direction:column; align-items:center; padding:36px 20px 80px; }
+.glow { display:none !important; }
+.prog-track { display:flex !important; gap:4px !important; margin-bottom:8px !important; }
+.prog-track .ps { flex:1 !important; height:4px !important; border-radius:3px !important; background:rgba(79,102,200,.18) !important; display:block !important; width:auto !important; min-width:0 !important; font-size:0 !important; color:transparent !important; padding:0 !important; margin:0 !important; }
+.prog-track .ps.done  { background:#0B9488 !important; }
+.prog-track .ps.active{ background:#3B6EF6 !important; }
+.header { max-width:860px !important; } .app { max-width:860px !important; width:100% !important; } .disclaimer { max-width:860px !important; }
+.header { width:100%; padding:28px 0 22px; margin-bottom:24px; border-bottom:1px solid var(--border); position:relative; z-index:1; }
+.header-eyebrow { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:100px; background:#0043F4; border:1px solid rgba(0,67,244,.3); font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#E8E8E8; margin-bottom:12px; }
+.header-dot { width:5px; height:5px; border-radius:50%; background:var(--accent); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.header-title { font-size:26px; font-weight:700; color:var(--text-1); letter-spacing:-.04em; line-height:1.15; }
+.header-title span { color:var(--accent); }
+.header-sub { font-size:13px; color:var(--text-2); margin-top:6px; line-height:1.55; }
+.app { position:relative; z-index:1; }
+.tabs { display:flex; gap:2px; margin-bottom:24px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:4px; }
+.tb { flex:1; padding:9px 16px; font-size:13px; font-weight:500; cursor:pointer; background:transparent; border:none; color:var(--text-3); border-radius:var(--radius-sm); transition:color .15s,background .15s; font-family:'Sora',sans-serif; letter-spacing:-.01em; }
+.tb:hover { color:var(--text-2); background:var(--surface-2); }
+.tb.on { background:var(--surface-2); color:var(--text-1); box-shadow:0 1px 3px rgba(0,0,0,.3); }
+.tab { display:none; } .tab.active { display:block; }
+.prog-wrap { margin-bottom:20px; }
+.prog-label { display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-2); }
+.bh { margin-bottom:20px; }
+.bt { font-size:20px; font-weight:700; color:var(--text-1); letter-spacing:-.035em; display:flex; align-items:center; gap:10px; flex-wrap:wrap; line-height:1.2; font-family:'Sora',sans-serif; }
+.bsub { font-size:13px; color:var(--text-2); margin-top:6px; line-height:1.55; }
+.w-pill { display:inline-flex; align-items:center; padding:3px 10px; border-radius:100px; background:#0046FF; border:1px solid rgba(0,70,255,.3); font-size:11.5px; font-weight:600; color:#F7F7F7; }
+.q { margin-bottom:18px; }
+.q-label { font-size:14px; font-weight:500; color:var(--text-2); display:block; margin-bottom:9px; line-height:1.45; }
+.opts { display:flex; flex-direction:column; gap:6px; }
+.ob { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:11px 15px; font-size:14px; font-weight:400; color:var(--text-2); text-align:left; cursor:pointer; transition:border-color .15s,background .15s,color .15s; line-height:1.4; font-family:'Sora',sans-serif; }
+.ob:hover { border-color:var(--border-2); color:var(--text-1); background:var(--surface-2); }
+.ob.sel { border-color:var(--accent); background:var(--accent-dim); color:var(--text-1); font-weight:500; box-shadow:0 0 0 1px var(--accent); }
+.div { height:1px; background:var(--border); margin:18px 0; }
+.nav { display:flex; justify-content:space-between; align-items:center; margin-top:24px; padding-top:18px; border-top:1px solid var(--border); }
+.bn { padding:9px 20px; border-radius:var(--radius-md); font-size:14px; font-weight:500; cursor:pointer; border:1px solid var(--border-2); background:var(--surface); color:var(--text-2); transition:background .15s; font-family:'Sora',sans-serif; }
+.bn:hover { background:var(--surface-2); color:var(--text-1); }
+.bn.pri { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600; box-shadow:0 4px 16px rgba(79,142,247,.3); }
+.bn.pri:hover { background:#6BA3F9; }
+.bn:disabled { opacity:.3; cursor:not-allowed; box-shadow:none; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:24px; margin-bottom:10px; }
+.k-hero { display:flex; align-items:flex-start; gap:18px; margin-bottom:20px; }
+.k-circle { width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; flex-shrink:0; border:2px solid; }
+.k0c{background:var(--k0-dim);color:var(--k0);border-color:rgba(248,113,113,.3)}
+.k1c{background:var(--k1-dim);color:var(--k1);border-color:rgba(251,191,36,.3)}
+.k2c{background:var(--k2-dim);color:var(--k2);border-color:rgba(96,165,250,.3)}
+.k3c{background:var(--k3-dim);color:var(--k3);border-color:rgba(52,211,153,.3)}
+.k4c{background:var(--k4-dim);color:var(--k4);border-color:rgba(167,139,250,.3)}
+.k-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:5px; border:1px solid; }
+.k0b{background:var(--k0-dim);color:var(--k0);border-color:rgba(248,113,113,.25)}
+.k1b{background:var(--k1-dim);color:var(--k1);border-color:rgba(251,191,36,.25)}
+.k2b{background:var(--k2-dim);color:var(--k2);border-color:rgba(96,165,250,.25)}
+.k3b{background:var(--k3-dim);color:var(--k3);border-color:rgba(52,211,153,.25)}
+.k4b{background:var(--k4-dim);color:var(--k4);border-color:rgba(167,139,250,.25)}
+.k-num { font-size:44px; font-weight:800; line-height:1; letter-spacing:-.06em; margin-bottom:4px; }
+.k-desc { font-size:13px; color:var(--text-2); line-height:1.5; }
+.score-section-title { font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); margin-bottom:12px; }
+.srow { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.slbl { font-size:12.5px; color:var(--text-2); width:175px; flex-shrink:0; display:flex; align-items:center; gap:6px; }
+.strk { flex:1; height:5px; background:var(--border-2); border-radius:3px; overflow:hidden; }
+.sfil { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--accent),var(--teal)); transition:width .6s cubic-bezier(.4,0,.2,1); }
+.sval { font-size:12px; font-weight:600; color:var(--text-3); width:30px; text-align:right; }
+.cr-row { display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--text-3); }
+.crbadge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:100px; font-size:12px; font-weight:600; border:1px solid; }
+.crok { background:var(--teal-dim); color:var(--teal); border-color:rgba(45,212,191,.25); }
+.crwarn { background:rgba(180,83,9,.08); color:var(--amber); border-color:rgba(245,158,11,.25); }
+.flag { border-radius:var(--radius-md); padding:12px 15px; margin-bottom:7px; font-size:13px; line-height:1.55; border:1px solid; }
+.fw{background:#FFF8ED;color:#7A3800;border-color:rgba(138,82,0,.3)}
+.fi{background:#EEF4FF;color:#1A3FBF;border-color:rgba(26,63,191,.25)}
+.fe{background:#FFF0F0;color:#8B0000;border-color:rgba(160,24,24,.3)}
+.fs{background:#FFF0F0;color:#8B0000;border-color:rgba(220,38,38,.3);border-left:3px solid #dc2626}
+.matrix-wrap { overflow-x:auto; margin-bottom:14px; }
+table.mtx { width:100%; border-collapse:collapse; font-size:12px; }
+table.mtx th,table.mtx td { padding:7px 8px; border:1px solid var(--border); text-align:center; }
+table.mtx th { background:var(--surface-2); font-weight:600; font-size:11px; color:var(--text-2); }
+table.mtx td { background:var(--surface); }
+table.mtx td.diag { background:var(--surface-2); color:var(--text-3); font-weight:600; }
+table.mtx input { width:54px; border:1px solid var(--border); border-radius:6px; padding:4px 5px; font-size:12px; text-align:center; background:var(--surface-2); color:var(--text-1); font-family:'Sora',sans-serif; }
+table.mtx input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-glow); }
+.cut-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.cut-row:first-child { border-top:1px solid var(--border); }
+.cut-label { color:var(--text-2); flex:1; line-height:1.4; }
+.cut-row select { border:1px solid var(--border-2); border-radius:8px; padding:5px 10px; font-size:12.5px; font-weight:600; background:var(--surface-2); color:var(--text-1); font-family:'Sora',sans-serif; cursor:pointer; }
+.info-sm { font-size:12.5px; color:var(--text-2); margin-bottom:14px; line-height:1.6; padding:11px 14px; background:var(--surface-2); border-radius:var(--radius-md); border:1px solid var(--border); }
+.cut-note { font-size:12px; color:var(--text-3); margin-top:14px; line-height:1.6; font-style:italic; }
+.weights-card { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-top:14px; }
+.weights-title { font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); margin-bottom:12px; }
+#cuts-saved { display:none; font-size:12.5px; font-weight:600; color:var(--teal); margin-left:12px; }
+.disclaimer { width:100%; padding:12px 16px; background:var(--surface); border-radius:var(--radius-md); border:1px solid var(--border); font-size:11.5px; color:var(--text-3); line-height:1.65; text-align:center; position:relative; z-index:1; margin-top:20px; }
+.radar-wrap { display:flex; justify-content:center; margin:6px 0 2px; }
+@keyframes blockIn  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes blockOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-10px)} }
+.block-enter { animation:blockIn .32s cubic-bezier(.22,.68,0,1.2) both; }
+.block-exit  { animation:blockOut .18s ease-in both; pointer-events:none; }
+.block-enter .q { opacity:0; animation:blockIn .3s cubic-bezier(.22,.68,0,1.2) both; }
+.block-enter .q:nth-child(1){animation-delay:.04s}
+.block-enter .q:nth-child(2){animation-delay:.10s}
+.block-enter .q:nth-child(3){animation-delay:.16s}
+.block-enter .q:nth-child(4){animation-delay:.22s}
+.block-enter .bh{animation:blockIn .28s ease both;animation-delay:.00s;opacity:0}
+.block-enter .nav{animation:blockIn .28s ease both;animation-delay:.28s;opacity:0}
+/* Save indicator */
+.save-indicator { display:none; position:fixed; bottom:1.5rem; right:1.5rem; background:#0B9488; color:white; padding:.6rem 1.125rem; border-radius:.6rem; font-size:.82rem; font-weight:600; font-family:'Sora',sans-serif; box-shadow:0 4px 16px rgba(11,148,136,.3); z-index:100; }
+.save-indicator.show { display:flex; align-items:center; gap:.5rem; }
+  </style>
+</head>
+<body>
+
+<!-- Auth guard — shown while checking -->
+<div id="auth-loading" style="position:fixed;inset:0;background:#E8EEF8;display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="text-align:center">
+    <div style="width:36px;height:36px;border:3px solid rgba(59,110,246,.2);border-top-color:#3B6EF6;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem"></div>
+    <div style="font-family:'Sora',sans-serif;font-size:.875rem;color:#4A5280">A verificar acesso...</div>
+  </div>
+</div>
+@keyframes spin{to{transform:rotate(360deg)}}
+
+<div class="save-indicator" id="save-indicator">✓ Guardado no Firestore</div>
+
+<nav>
+  <a href="dashboard.html" class="nav-brand">
+    <svg class="nav-logo" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="8" fill="#0d9488"/>
+      <path d="M10 9h8c2.2 0 4 1.8 4 4s-1.8 4-4 4l4.5 8h-3.5L15 17h-2v8h-3V9z" fill="white"/>
+      <circle cx="29" cy="9" r="3.5" fill="#5eead4"/>
+    </svg>
+    <span class="nav-brand-text">
+      <span class="top">AHP · Ortoprostética</span>
+      <span class="btm">RehabPro</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">Pacientes</a></li>
+    <li><a href="ferramenta.html" class="active">Ferramenta</a></li>
+    <li><a href="resultado.html">Resultado</a></li>
+    <li><a href="#" id="nav-logout" style="color:#f87171">Sair</a></li>
+  </ul>
+</nav>
+
+<div class="tool-page">
+  <div class="header">
+    <div class="header-eyebrow">
+      <span class="header-dot"></span>
+      Sistema de apoio à decisão
+    </div>
+    <div class="header-title">Classificação <span>K-Level</span></div>
+    <div class="header-sub" id="header-sub">AHP Híbrido · Amputados de membro inferior · Ferramenta clínica experimental</div>
+  </div>
+
+  <div class="app">
+    <div class="tabs">
+      <button class="tb on" onclick="switchTab('form', this)">Avaliação</button>
+      <button class="tb" onclick="switchTab('config', this)">Pesos AHP</button>
+      <button class="tb" onclick="switchTab('cuts', this)">Regras clínicas</button>
+    </div>
+
+    <div class="tab active" id="tab-form">
+      <div class="prog-wrap">
+        <div class="prog-track" id="prog">
+          <div class="ps active"></div><div class="ps"></div><div class="ps"></div>
+          <div class="ps"></div><div class="ps"></div><div class="ps"></div>
+        </div>
+        <div class="prog-label">
+          <span id="prog-block-label">Bloco 1 de 5 — Capacidade física atual</span>
+          <span id="prog-item-label">0 / 15 itens</span>
+        </div>
+      </div>
+      <div id="content"></div>
+    </div>
+
+    <div class="tab" id="tab-config">
+      <div class="bh">
+        <div class="bt">Pesos AHP</div>
+        <div class="bsub">Matriz par-a-par (escala Saaty 1–9). O valor aᵢⱼ indica quantas vezes o critério da linha é mais importante que o da coluna. Fracções como ⅓ inserir como 0.33.</div>
+      </div>
+      <div class="matrix-wrap"><table class="mtx" id="ahp-matrix"></table></div>
+      <div style="margin-top:16px;display:flex;gap:12px;align-items:center;">
+        <button class="bn pri" onclick="computeAHP()">Calcular pesos</button>
+        <span class="crbadge" id="cr-display"></span>
+      </div>
+      <div id="weights-display"></div>
+    </div>
+
+    <div class="tab" id="tab-cuts">
+      <div class="bh">
+        <div class="bt">Regras clínicas</div>
+        <div class="bsub">Cada regra impõe um K máximo independentemente do score AHP.</div>
+      </div>
+      <div id="cuts-ui"></div>
+      <div style="margin-top:20px;display:flex;align-items:center;">
+        <button class="bn pri" onclick="saveCuts()">Guardar regras</button>
+        <span id="cuts-saved">✓ Guardado</span>
+      </div>
+      <p class="cut-note">Propostas provisórias. Validação pelo painel clínico obrigatória antes de uso real.</p>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    Ferramenta de apoio à decisão — não substitui avaliação clínica especializada.<br>
+    Utilização experimental. Valide sempre os resultados com fisiatras qualificados.
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="dashboard.html">Pacientes</a>
+    <a href="ferramenta.html">Ferramenta</a>
+    <a href="resultado.html">Resultado</a>
+  </div>
+  <p><strong>RehabPro · AHP K-Level · Engenharia Biomédica</strong></p>
+  <p>Ferramenta de apoio à decisão clínica · Uso exclusivo por profissionais de saúde habilitados</p>
+</footer>
+
+<!-- Firebase auth guard + Firestore save -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey:"AIzaSyCprkCj3YQdO6WtyXJvYBChCuUP_ge9JaU",
+    authDomain:"rehabpro-3a01e.firebaseapp.com",
+    projectId:"rehabpro-3a01e",
+    storageBucket:"rehabpro-3a01e.firebasestorage.app",
+    messagingSenderId:"690449795180",
+    appId:"1:690449795180:web:9fe2db77e3b496a197f049"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (!snap.exists() || snap.data().status !== "ativo") {
+      await signOut(auth); window.location.href = "login.html?msg=pendente"; return;
+    }
+    // Auth OK — hide loading screen
+    document.getElementById("auth-loading").style.display = "none";
+    const profile = snap.data();
+    document.getElementById("header-sub").textContent =
+      `AHP Híbrido · ${profile.nome} · ${profile.especialidade}`;
+
+    // Logout
+    document.getElementById("nav-logout").addEventListener("click", async (e) => {
+      e.preventDefault(); await signOut(auth); window.location.href = "login.html";
+    });
+
+    // Expose save function to ahp.js
+    window._firebaseSaveAvaliacao = async (dados) => {
+      const pacienteId = sessionStorage.getItem("pacienteId");
+      if (!pacienteId) return; // sem paciente seleccionado, não guarda
+      try {
+        await updateDoc(doc(db, "pacientes", pacienteId), {
+          avaliacao: { ...dados, data: serverTimestamp() }
+        });
+        const ind = document.getElementById("save-indicator");
+        ind.classList.add("show");
+        setTimeout(() => ind.classList.remove("show"), 3000);
+      } catch(e) {
+        console.warn("Firestore save error:", e);
+      }
+    };
+  });
+</script>
+
+<script src="js/ahp.js"></script>
+</body>
+</html>
