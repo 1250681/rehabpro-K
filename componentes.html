@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Componentes · RehabPro</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .page-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);padding:2.5rem 1.5rem 2rem;border-bottom:1px solid rgba(13,148,136,.2)}
+    .page-hero .inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem}
+    .page-hero h1{font-size:clamp(1.3rem,3vw,1.75rem);font-weight:700;color:white;margin-bottom:.3rem}
+    .page-hero p{color:rgba(255,255,255,.5);font-size:.85rem}
+    main{padding:2rem 1.5rem 5rem}
+    .inner{max-width:1100px;margin:0 auto}
+    .db-tabs{display:flex;gap:4px;margin-bottom:1.5rem;background:white;border:1px solid var(--border);border-radius:var(--r);padding:4px}
+    .db-tab{flex:1;padding:.6rem 1rem;font-size:.875rem;font-weight:500;cursor:pointer;background:transparent;border:none;border-radius:.875rem;color:var(--muted);transition:all .15s;font-family:inherit}
+    .db-tab:hover{background:var(--off);color:var(--text)}
+    .db-tab.on{background:var(--off);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.15);font-weight:600}
+    .toolbar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1.25rem}
+    .toolbar-right{margin-left:auto;display:flex;gap:.75rem}
+    .filter-select,.search-input{border:1px solid var(--border);border-radius:.625rem;padding:.45rem .875rem;font-size:.8rem;font-family:inherit;background:white;color:var(--text)}
+    .search-input{min-width:200px}
+    .search-input:focus{outline:none;border-color:var(--teal)}
+    .tbl-wrap{background:white;border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+    .tbl-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 2fr 1fr 90px;padding:.75rem 1rem;background:var(--off);border-bottom:1px solid var(--border);font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+    .tbl-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 2fr 1fr 90px;padding:.75rem 1rem;border-bottom:1px solid rgba(13,148,136,.08);align-items:center;transition:background .12s}
+    .tbl-row:last-child{border-bottom:none}
+    .tbl-row:hover{background:var(--off)}
+    .tbl-row.inactive{opacity:.4}
+    .cell{font-size:.825rem;padding:0 .375rem}
+    .cell-name{font-weight:600;color:var(--text)}
+    .cell-ref{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted)}
+    .cell-actions{display:flex;gap:.375rem;justify-content:flex-end}
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:.7rem;font-weight:600;border:1px solid}
+    .badge-teal{background:rgba(13,148,136,.1);color:var(--teal2);border-color:rgba(13,148,136,.25)}
+    .badge-blue{background:rgba(59,130,246,.1);color:#1d4ed8;border-color:rgba(59,130,246,.25)}
+    .badge-red{background:rgba(239,68,68,.1);color:#b91c1c;border-color:rgba(239,68,68,.25)}
+    .badge-purple{background:rgba(139,92,246,.1);color:#6d28d9;border-color:rgba(139,92,246,.25)}
+    .badge-gray{background:rgba(107,114,128,.1);color:#374151;border-color:rgba(107,114,128,.25)}
+    .badge-ossur{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+    .badge-ottobock{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+    .btn-icon{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .12s;color:var(--muted)}
+    .btn-icon:hover{background:var(--off);color:var(--text)}
+    .btn-icon.danger:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--red)}
+    .btn-icon.on{background:rgba(13,148,136,.1);border-color:rgba(13,148,136,.3);color:var(--teal2)}
+    .btn-icon.off{background:rgba(107,114,128,.1);border-color:rgba(107,114,128,.3);color:#9ca3af}
+    .modal-overlay{position:fixed;inset:0;background:rgba(11,31,58,.6);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem}
+    .modal-overlay.hidden{display:none}
+    .modal{background:white;border-radius:var(--r);padding:2rem;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(11,31,58,.3)}
+    .modal h3{font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;color:var(--navy)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .form-group{display:flex;flex-direction:column;gap:.4rem}
+    .form-group.full{grid-column:span 2}
+    .form-group label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .form-group input,.form-group select,.form-group textarea{border:1px solid var(--border);border-radius:.625rem;padding:.55rem .875rem;font-size:.875rem;font-family:inherit;background:var(--off);color:var(--text);transition:border-color .12s}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--teal);background:white}
+    .form-group textarea{min-height:70px;resize:vertical}
+    .modal-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+    .stat-card{background:white;border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem}
+    .stat-card .s-num{font-size:1.75rem;font-weight:700;color:var(--teal2);line-height:1}
+    .stat-card .s-lbl{font-size:.75rem;color:var(--muted);margin-top:.3rem}
+    .empty-row{text-align:center;padding:3rem;color:var(--muted);font-size:.875rem}
+    .spin{display:inline-block;width:28px;height:28px;border:3px solid rgba(13,148,136,.2);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .notif{position:fixed;top:1.25rem;right:1.25rem;z-index:999;padding:.875rem 1.25rem;border-radius:.75rem;font-size:.875rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.15);transform:translateY(-8px);opacity:0;transition:all .3s;pointer-events:none}
+    .notif.show{transform:translateY(0);opacity:1}
+    .notif-ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+    .notif-err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+    #auth-loading{position:fixed;inset:0;background:var(--off);display:flex;align-items:center;justify-content:center;z-index:9999}
+    /* Info banner for doctors */
+    .info-banner{background:rgba(13,148,136,.08);border:1px solid rgba(13,148,136,.2);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.875rem;color:var(--teal2);display:none}
+    @media(max-width:900px){
+      .tbl-header,.tbl-row{grid-template-columns:2fr 1fr 1fr 90px}
+      .tbl-row>*:nth-child(3),.tbl-row>*:nth-child(4),.tbl-row>*:nth-child(5),
+      .tbl-header>*:nth-child(3),.tbl-header>*:nth-child(4),.tbl-header>*:nth-child(5){display:none}
+      .stats-row{grid-template-columns:1fr 1fr}
+      .form-grid{grid-template-columns:1fr}
+      .form-group.full{grid-column:span 1}
+    }
+  </style>
+</head>
+<body>
+
+<div id="auth-loading">
+  <div style="text-align:center">
+    <div class="spin"></div>
+    <div style="margin-top:1rem;font-family:'Sora',sans-serif;font-size:.875rem;color:var(--muted)">A verificar acesso...</div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<nav>
+  <a href="dashboard.html" class="nav-brand">
+    <svg class="nav-logo" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="8" fill="#0d9488"/>
+      <path d="M10 9h8c2.2 0 4 1.8 4 4s-1.8 4-4 4l4.5 8h-3.5L15 17h-2v8h-3V9z" fill="white"/>
+      <circle cx="29" cy="9" r="3.5" fill="#5eead4"/>
+    </svg>
+    <span class="nav-brand-text">
+      <span class="top">AHP · Ortoprostética</span>
+      <span class="btm">RehabPro</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">Pacientes</a></li>
+    <li><a href="componentes.html" class="active">Componentes</a></li>
+    <li><a href="gestao.html" id="nav-admin" style="display:none">Admin</a></li>
+    <li><a href="#" id="nav-logout" style="color:#f87171">Sair</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <div class="inner">
+    <div>
+      <h1>Base de dados de componentes</h1>
+      <p id="hero-sub">A carregar...</p>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap" id="admin-btns" style="display:none">
+      <button class="btn btn-outline" onclick="exportarJSON()" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)">↓ Exportar JSON</button>
+      <button class="btn btn-primary" onclick="abrirModal(null)">+ Adicionar componente</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="inner">
+    <div class="info-banner" id="info-banner">
+      ✓ Activa ou desactiva componentes para personalizar a tua lista. Nas prescrições só aparecerão os componentes que tens activos.
+    </div>
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card" style="grid-column:span 4;text-align:center"><div class="spin" style="width:20px;height:20px;margin:auto"></div></div>
+    </div>
+    <div class="db-tabs">
+      <button class="db-tab on" onclick="switchTab('pe',this)">🦶 Pés</button>
+      <button class="db-tab" onclick="switchTab('joelho',this)">🦵 Joelhos</button>
+      <button class="db-tab" onclick="switchTab('suspensao',this)">🔗 Suspensão</button>
+    </div>
+    <div class="toolbar">
+      <input class="search-input" type="text" placeholder="Pesquisar por nome ou referência..." oninput="renderTable()" id="search-input"/>
+      <select class="filter-select" onchange="renderTable()" id="filter-k">
+        <option value="">Todos os K-Levels</option>
+        <option>K0</option><option>K1</option><option>K1-K2</option>
+        <option>K2</option><option>K2-K3</option><option>K3</option>
+        <option>K3-K4</option><option>K4</option>
+      </select>
+      <select class="filter-select" onchange="renderTable()" id="filter-marca">
+        <option value="">Todas as marcas</option>
+        <option>Össur</option><option>Ottobock</option><option>Outro</option>
+      </select>
+      <select class="filter-select" onchange="renderTable()" id="filter-estado">
+        <option value="">Todos</option>
+        <option value="activo">Activos</option>
+        <option value="inactivo">Inactivos</option>
+      </select>
+      <div class="toolbar-right" id="toolbar-add" style="display:none">
+        <button class="btn btn-primary" onclick="abrirModal(null)">+ Adicionar</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-header">
+        <div>Nome / Referência</div><div>K-Level</div>
+        <div>Marca</div><div>Nível amp.</div><div>Categoria</div>
+        <div>Estado</div><div style="text-align:right">Acções</div>
+      </div>
+      <div id="tbl-body"><div style="text-align:center;padding:3rem"><div class="spin"></div></div></div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal (só admin) -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Adicionar componente</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="f-tipo" onchange="updateNivelOptions()">
+          <option value="pe">Pé</option>
+          <option value="joelho">Joelho</option>
+          <option value="suspensao">Suspensão</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Marca</label>
+        <select id="f-marca"><option>Össur</option><option>Ottobock</option><option>Outro</option></select>
+      </div>
+      <div class="form-group full">
+        <label>Nome do produto</label>
+        <input type="text" id="f-nome" placeholder="ex: Pro-Flex XC Torsion"/>
+      </div>
+      <div class="form-group">
+        <label>Referência / código</label>
+        <input type="text" id="f-ref" placeholder="ex: 1C59"/>
+      </div>
+      <div class="form-group">
+        <label>K-Level</label>
+        <select id="f-klevel">
+          <option>K0</option><option>K1</option><option>K1-K2</option>
+          <option>K2</option><option>K2-K3</option><option selected>K3</option>
+          <option>K3-K4</option><option>K4</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nível de amputação</label>
+        <select id="f-nivel">
+          <option value="todos">Todos</option>
+          <option value="TT">Transtibial (TT)</option>
+          <option value="TF">Transfemoral (TF)</option>
+          <option value="DK">Desarticulação joelho (DK)</option>
+          <option value="HP">Hemipelvectomia</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Categoria / tecnologia</label>
+        <input type="text" id="f-cat" placeholder="ex: Pé ESAR de alto desempenho com torsão"/>
+      </div>
+      <div class="form-group full">
+        <label>Notas clínicas (opcional)</label>
+        <textarea id="f-notas" placeholder="Indicações, contra-indicações, condições de uso..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Estado global</label>
+        <select id="f-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarComponente()" id="btn-guardar-modal">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="dashboard.html">Pacientes</a>
+    <a href="componentes.html">Componentes</a>
+    <a href="gestao.html">Admin</a>
+  </div>
+  <p><strong>RehabPro · AHP K-Level · Engenharia Biomédica</strong></p>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const fCfg = {
+  apiKey:"AIzaSyCprkCj3YQdO6WtyXJvYBChCuUP_ge9JaU",
+  authDomain:"rehabpro-3a01e.firebaseapp.com",
+  projectId:"rehabpro-3a01e",
+  storageBucket:"rehabpro-3a01e.firebasestorage.app",
+  messagingSenderId:"690449795180",
+  appId:"1:690449795180:web:9fe2db77e3b496a197f049"
+};
+const fapp = initializeApp(fCfg);
+const auth = getAuth(fapp);
+const db   = getFirestore(fapp);
+
+const DEFAULT_DB = [
+  {id:'pe_001',tipo:'pe',marca:'Ottobock',nome:'SACH+™ Feet',ref:'1S101/102/103',klevel:'K1-K2',nivel:'todos',cat:'Pé SACH básico — marcha doméstica velocidade única',notas:'',activo:true},
+  {id:'pe_002',tipo:'pe',marca:'Ottobock',nome:'Dynamic Foot™ with Toes',ref:'1D10/1D11',klevel:'K1-K2',nivel:'todos',cat:'Pé dinâmico básico com dedos',notas:'',activo:true},
+  {id:'pe_003',tipo:'pe',marca:'Ottobock',nome:'Terion™ K2',ref:'1C11',klevel:'K1-K2',nivel:'todos',cat:'Pé de baixa actividade, 385 lbs',notas:'',activo:true},
+  {id:'pe_004',tipo:'pe',marca:'Ottobock',nome:'Kintrol',ref:'VS4',klevel:'K2',nivel:'todos',cat:'Pé baixa actividade com amortecimento vertical, 300 lbs',notas:'',activo:true},
+  {id:'pe_005',tipo:'pe',marca:'Ottobock',nome:'Restore',ref:'VS5',klevel:'K2',nivel:'todos',cat:'Pé baixa actividade, 300 lbs',notas:'',activo:true},
+  {id:'pe_006',tipo:'pe',marca:'Össur',nome:'Vari-Flex®',ref:'—',klevel:'K2',nivel:'todos',cat:'Pé ESAR baixo a moderado impacto',notas:'',activo:true},
+  {id:'pe_007',tipo:'pe',marca:'Össur',nome:'Pro-Flex® Pivot',ref:'—',klevel:'K2',nivel:'todos',cat:'Pé com movimento de tornozelo 27°, baixo impacto',notas:'',activo:true},
+  {id:'pe_008',tipo:'pe',marca:'Ottobock',nome:'Trias®',ref:'1C30',klevel:'K3',nivel:'todos',cat:'Pé baixa-moderada actividade, 275 lbs',notas:'',activo:true},
+  {id:'pe_009',tipo:'pe',marca:'Ottobock',nome:'Taleo',ref:'1C50',klevel:'K3',nivel:'todos',cat:'Pé moderada-alta actividade, 330 lbs',notas:'',activo:true},
+  {id:'pe_010',tipo:'pe',marca:'Ottobock',nome:'Taleo Harmony',ref:'1C52',klevel:'K3',nivel:'todos',cat:'Pé moderada-alta actividade + absorção vertical, 330 lbs',notas:'',activo:true},
+  {id:'pe_011',tipo:'pe',marca:'Ottobock',nome:'Taleo Adapt',ref:'1C59',klevel:'K3',nivel:'todos',cat:'Pé hidráulico ESAR, 287 lbs, adaptação automática',notas:'',activo:true},
+  {id:'pe_012',tipo:'pe',marca:'Ottobock',nome:'Taleo Vertical Shock',ref:'1C51',klevel:'K3',nivel:'todos',cat:'Pé moderada-alta actividade + amortecimento vertical, 330 lbs',notas:'',activo:true},
+  {id:'pe_013',tipo:'pe',marca:'Ottobock',nome:'Taleo Side Flex',ref:'1C58',klevel:'K3',nivel:'todos',cat:'Pé com flexão lateral, 287 lbs',notas:'',activo:true},
+  {id:'pe_014',tipo:'pe',marca:'Ottobock',nome:'Meridium®',ref:'1B1-2',klevel:'K2-K3',nivel:'todos',cat:'Pé microprocessado adaptativo, 275 lbs',notas:'Indicado para K2-K3 com segurança comprometida',activo:true},
+  {id:'pe_015',tipo:'pe',marca:'Ottobock',nome:'Empower®',ref:'1A1-2',klevel:'K3',nivel:'todos',cat:'Pé microprocessado com propulsão activa, 287 lbs',notas:'',activo:true},
+  {id:'pe_016',tipo:'pe',marca:'Össur',nome:'Pro-Flex® ST',ref:'—',klevel:'K3',nivel:'todos',cat:'Pé ESAR optimizado, baixo a alto impacto, 166 kg',notas:'',activo:true},
+  {id:'pe_017',tipo:'pe',marca:'Össur',nome:'Pro-Flex® LP',ref:'—',klevel:'K3',nivel:'todos',cat:'Pé ESAR baixo perfil para cotos longos',notas:'',activo:true},
+  {id:'pe_018',tipo:'pe',marca:'Össur',nome:'Pro-Flex® Modular',ref:'—',klevel:'K3',nivel:'todos',cat:'Pé ESAR modular',notas:'',activo:true},
+  {id:'pe_019',tipo:'pe',marca:'Össur',nome:'Pro-Flex® XC',ref:'—',klevel:'K3',nivel:'todos',cat:'Pé ESAR alto desempenho, IP68, 166 kg',notas:'Compatível com Unity System para elevated vacuum',activo:true},
+  {id:'pe_020',tipo:'pe',marca:'Össur',nome:'Pro-Flex® Terra',ref:'—',klevel:'K3',nivel:'todos',cat:'Pé ESAR multilâmina para terreno variado',notas:'',activo:true},
+  {id:'pe_021',tipo:'pe',marca:'Össur',nome:'Proprio Foot®',ref:'—',klevel:'K2-K3',nivel:'todos',cat:'Pé microprocessado adaptativo — reduz risco de queda',notas:'Indicado para perfil de segurança comprometida',activo:true},
+  {id:'pe_022',tipo:'pe',marca:'Ottobock',nome:'Triton® HD',ref:'1C64',klevel:'K3-K4',nivel:'todos',cat:'Pé alto desempenho, 330 lbs',notas:'',activo:true},
+  {id:'pe_023',tipo:'pe',marca:'Ottobock',nome:'Triton® Harmony',ref:'1C62',klevel:'K3-K4',nivel:'todos',cat:'Pé alto desempenho + absorção, 330 lbs',notas:'',activo:true},
+  {id:'pe_024',tipo:'pe',marca:'Ottobock',nome:'Maverick Xtreme AT',ref:'F21',klevel:'K3-K4',nivel:'todos',cat:'Pé todo-terreno alta performance, 365 lbs',notas:'',activo:true},
+  {id:'pe_025',tipo:'pe',marca:'Össur',nome:'Pro-Flex® XC Torsion',ref:'—',klevel:'K3-K4',nivel:'todos',cat:'Pé ESAR alto desempenho com torsão, 147 kg',notas:'',activo:true},
+  {id:'pe_026',tipo:'pe',marca:'Össur',nome:'Cheetah® Xpanse',ref:'—',klevel:'K4',nivel:'todos',cat:'Lâmina de carbono para corrida K4',notas:'',activo:true},
+  {id:'pe_027',tipo:'pe',marca:'Össur',nome:'Cheetah® Xcel',ref:'—',klevel:'K4',nivel:'todos',cat:'Lâmina de carbono para corrida K4',notas:'',activo:true},
+  {id:'pe_028',tipo:'pe',marca:'Ottobock',nome:'Springlite Sprinter',ref:'1E90',klevel:'K4',nivel:'todos',cat:'Lâmina de carbono para corrida K3-K4',notas:'',activo:true},
+  {id:'jo_001',tipo:'joelho',marca:'Össur',nome:'Locking Knee LKN',ref:'—',klevel:'K1',nivel:'TF',cat:'Joelho mono-eixo com bloqueio manual, 125 kg',notas:'Máxima segurança, reabilitação inicial',activo:true},
+  {id:'jo_002',tipo:'joelho',marca:'Ottobock',nome:'3R41',ref:'3R41',klevel:'K1',nivel:'TF',cat:'Joelho mono-eixo com bloqueio',notas:'',activo:true},
+  {id:'jo_003',tipo:'joelho',marca:'Össur',nome:'Total Knee® 1900',ref:'—',klevel:'K2',nivel:'TF',cat:'Joelho policêntrico, bloqueio geométrico, 100 kg',notas:'',activo:true},
+  {id:'jo_004',tipo:'joelho',marca:'Ottobock',nome:'3R106-PRO',ref:'3R106-PRO',klevel:'K2',nivel:'TF',cat:'Joelho policêntrico básico',notas:'',activo:true},
+  {id:'jo_005',tipo:'joelho',marca:'Ottobock',nome:'3R20/3R26',ref:'3R20/3R26',klevel:'K2',nivel:'TF',cat:'Joelho policêntrico 4 eixos extremidade livre',notas:'',activo:true},
+  {id:'jo_006',tipo:'joelho',marca:'Össur',nome:'Navii®',ref:'—',klevel:'K2-K3',nivel:'TF',cat:'MPK IP68, stumble recovery, 136 kg',notas:'Indicado para K2 com segurança comprometida',activo:true},
+  {id:'jo_007',tipo:'joelho',marca:'Ottobock',nome:'Kenevo',ref:'—',klevel:'K2-K3',nivel:'TF',cat:'MPK modos A/B/B+/C, stumble recovery, modo cadeira rodas',notas:'Indicado para K2 com segurança comprometida',activo:true},
+  {id:'jo_008',tipo:'joelho',marca:'Össur',nome:'Total Knee® 2000',ref:'—',klevel:'K3',nivel:'TF',cat:'Joelho policêntrico hidráulico 3 fases, 100 kg',notas:'',activo:true},
+  {id:'jo_009',tipo:'joelho',marca:'Ottobock',nome:'3R60 EBS',ref:'3R60',klevel:'K3',nivel:'TF',cat:'Joelho policêntrico hidráulico EBS K2-K3',notas:'',activo:true},
+  {id:'jo_010',tipo:'joelho',marca:'Össur',nome:'Mauch® Knee Plus',ref:'—',klevel:'K3',nivel:'TF',cat:'Joelho hidráulico eixo único, 166 kg, stairs step-over-step',notas:'',activo:true},
+  {id:'jo_011',tipo:'joelho',marca:'Ottobock',nome:'3R80',ref:'3R80',klevel:'K3-K4',nivel:'TF',cat:'Joelho hidráulico rotativo, waterproof, 150 kg',notas:'',activo:true},
+  {id:'jo_012',tipo:'joelho',marca:'Össur',nome:'Rheo Knee® XC',ref:'—',klevel:'K4',nivel:'TF',cat:'MPK K3-K4, ciclismo e corrida, 136 kg',notas:'',activo:true},
+  {id:'jo_013',tipo:'joelho',marca:'Ottobock',nome:'C-Leg®',ref:'—',klevel:'K4',nivel:'TF',cat:'MPK referência mundial, K2-K4, >100.000 fittings',notas:'',activo:true},
+  {id:'jo_014',tipo:'joelho',marca:'Ottobock',nome:'Genium X3/X4',ref:'—',klevel:'K4',nivel:'TF',cat:'MPK máxima performance, modo corrida, IP68',notas:'',activo:true},
+  {id:'jo_015',tipo:'joelho',marca:'Össur',nome:'Balance Knee OFM1',ref:'—',klevel:'K2',nivel:'DK',cat:'Joelho policêntrico com adaptador DK',notas:'Desarticulação do joelho',activo:true},
+  {id:'jo_016',tipo:'joelho',marca:'Ottobock',nome:'3R62 KD',ref:'3R62',klevel:'K2',nivel:'DK',cat:'Joelho policêntrico versão desarticulação',notas:'',activo:true},
+  {id:'su_001',tipo:'suspensao',marca:'Össur',nome:'Iceross® Dermo Locking',ref:'—',klevel:'K1-K2',nivel:'TT',cat:'Liner silicone + pin lock — pele frágil / baixa destreza',notas:'',activo:true},
+  {id:'su_002',tipo:'suspensao',marca:'Össur',nome:'Iceross Seal-In® X5',ref:'—',klevel:'K2-K3',nivel:'TT',cat:'Sucção por membranas — bom controlo rotacional',notas:'',activo:true},
+  {id:'su_003',tipo:'suspensao',marca:'Össur',nome:'Unity® System',ref:'—',klevel:'K3-K4',nivel:'TT',cat:'Elevated vacuum — máximo controlo, mínimo pistoning',notas:'',activo:true},
+  {id:'su_004',tipo:'suspensao',marca:'Ottobock',nome:'Harmony P2',ref:'—',klevel:'K2-K3',nivel:'TT',cat:'Vácuo passivo',notas:'',activo:true},
+  {id:'su_005',tipo:'suspensao',marca:'Ottobock',nome:'Harmony P4 HD',ref:'—',klevel:'K3-K4',nivel:'TT',cat:'Elevated vacuum activo — alta actividade',notas:'',activo:true},
+  {id:'su_006',tipo:'suspensao',marca:'Össur',nome:'Iceross Seal-In® X TF',ref:'—',klevel:'K2-K3',nivel:'TF',cat:'Sucção por membranas transfemoral',notas:'',activo:true},
+  {id:'su_007',tipo:'suspensao',marca:'Össur',nome:'Unity® TF',ref:'—',klevel:'K3-K4',nivel:'TF',cat:'Elevated vacuum transfemoral — gold standard',notas:'',activo:true},
+  {id:'su_008',tipo:'suspensao',marca:'Ottobock',nome:'Harmony P4 HD TF',ref:'—',klevel:'K3-K4',nivel:'TF',cat:'Elevated vacuum activo TF',notas:'',activo:true},
+  {id:'su_009',tipo:'suspensao',marca:'Ottobock',nome:'Cinto Silesian',ref:'—',klevel:'K1-K2',nivel:'TF',cat:'Cinto de suspensão — tolerante a variação volumétrica',notas:'',activo:true},
+  {id:'su_010',tipo:'suspensao',marca:'Össur',nome:'Iceross® Seal-In DK',ref:'—',klevel:'K2',nivel:'DK',cat:'Suspensão condiliana — expansão sobre côndilos femorais',notas:'',activo:true},
+];
+
+let componentes = [];
+let currentTab  = 'pe';
+let editId      = null;
+let isAdmin     = false;
+let currentUid  = null;
+let prefMap     = {};
+
+// ── Auth guard ──
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href="login.html"; return; }
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if (!snap.exists()||snap.data().status!=="ativo") {
+    await signOut(auth); window.location.href="login.html?msg=pendente"; return;
+  }
+  currentUid = user.uid;
+  const profile = snap.data();
+  isAdmin = profile.role==="admin";
+  document.getElementById("auth-loading").style.display="none";
+  document.getElementById("hero-sub").textContent = isAdmin
+    ? "Gestão global — adicionar, editar, activar/desactivar para todos"
+    : `${profile.nome} · Personaliza a tua lista de componentes preferidos`;
+  if (isAdmin) {
+    document.getElementById("admin-btns").style.display="flex";
+    document.getElementById("toolbar-add").style.display="flex";
+    document.getElementById("nav-admin").style.display="inline";
+  } else {
+    document.getElementById("info-banner").style.display="block";
+  }
+  document.getElementById("nav-logout").addEventListener("click", async e=>{
+    e.preventDefault(); await signOut(auth); window.location.href="login.html";
+  });
+  await carregarTudo();
+});
+
+async function carregarTudo() {
+  // Componentes globais
+  const colSnap = await getDocs(collection(db,"componentes"));
+  if (colSnap.empty && isAdmin) {
+    await popularDefaults();
+  } else if (colSnap.empty) {
+    componentes = DEFAULT_DB.map(c=>({...c}));
+  } else {
+    componentes = colSnap.docs.map(d=>({id:d.id,...d.data()}));
+  }
+  // Preferências pessoais
+  const prefSnap = await getDoc(doc(db,"preferencias",currentUid));
+  if (prefSnap.exists()) {
+    prefMap = prefSnap.data().componentes||{};
+  } else {
+    // Primeira vez — todos activos
+    prefMap = {};
+    componentes.forEach(c=>{ prefMap[c.id]=true; });
+    await setDoc(doc(db,"preferencias",currentUid),{componentes:prefMap,uid:currentUid});
+  }
+  renderStats();
+  renderTable();
+}
+
+async function popularDefaults() {
+  for (const c of DEFAULT_DB) {
+    await setDoc(doc(db,"componentes",c.id),c);
+  }
+  componentes = DEFAULT_DB.map(c=>({...c}));
+}
+
+function renderStats() {
+  const pes     = componentes.filter(c=>c.tipo==='pe').length;
+  const joelhos = componentes.filter(c=>c.tipo==='joelho').length;
+  const susps   = componentes.filter(c=>c.tipo==='suspensao').length;
+  const activos = isAdmin
+    ? componentes.filter(c=>c.activo).length
+    : Object.values(prefMap).filter(Boolean).length;
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-card"><div class="s-num">${pes}</div><div class="s-lbl">🦶 Pés</div></div>
+    <div class="stat-card"><div class="s-num">${joelhos}</div><div class="s-lbl">🦵 Joelhos</div></div>
+    <div class="stat-card"><div class="s-num">${susps}</div><div class="s-lbl">🔗 Suspensão</div></div>
+    <div class="stat-card"><div class="s-num">${activos}</div><div class="s-lbl">✓ ${isAdmin?'Activos globais':'Na minha lista'}</div></div>`;
+}
+
+window.switchTab = (tab,btn) => {
+  currentTab=tab;
+  document.querySelectorAll('.db-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('search-input').value='';
+  document.getElementById('filter-k').value='';
+  document.getElementById('filter-marca').value='';
+  renderTable();
+};
+
+function kBadge(k){
+  const m={'K0':'badge-gray','K1':'badge-red','K1-K2':'badge-red','K2':'badge-blue','K2-K3':'badge-blue','K3':'badge-teal','K3-K4':'badge-teal','K4':'badge-purple'};
+  return `<span class="badge ${m[k]||'badge-gray'}">${k}</span>`;
+}
+function marcaBadge(m){
+  if(m==='Össur') return `<span class="badge badge-ossur">Össur</span>`;
+  if(m==='Ottobock') return `<span class="badge badge-ottobock">Ottobock</span>`;
+  return `<span class="badge badge-gray">${m}</span>`;
+}
+
+function renderTable() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const fk     = document.getElementById('filter-k').value;
+  const fm     = document.getElementById('filter-marca').value;
+  const fe     = document.getElementById('filter-estado').value;
+
+  const rows = componentes.filter(c=>{
+    if(c.tipo!==currentTab) return false;
+    if(!isAdmin && !c.activo) return false; // médico não vê inactivos globais
+    if(fk && c.klevel!==fk) return false;
+    if(fm && c.marca!==fm) return false;
+    const activoLocal = isAdmin ? c.activo : prefMap[c.id]!==false;
+    if(fe==='activo'   && !activoLocal) return false;
+    if(fe==='inactivo' &&  activoLocal) return false;
+    if(search && !c.nome.toLowerCase().includes(search) && !c.ref.toLowerCase().includes(search) && !c.cat.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  if(rows.length===0){
+    document.getElementById('tbl-body').innerHTML='<div class="empty-row">Nenhum componente encontrado.</div>';
+    return;
+  }
+
+  document.getElementById('tbl-body').innerHTML=rows.map(c=>{
+    const activoLocal = isAdmin ? c.activo : prefMap[c.id]!==false;
+    const toggleTitle = activoLocal
+      ? (isAdmin?'Desactivar para todos':'Remover da minha lista')
+      : (isAdmin?'Activar para todos':'Adicionar à minha lista');
+    return `<div class="tbl-row ${activoLocal?'':'inactive'}">
+      <div class="cell"><div class="cell-name">${c.nome}</div><div class="cell-ref">${c.ref!=='—'?c.ref:''}</div></div>
+      <div class="cell">${kBadge(c.klevel)}</div>
+      <div class="cell">${marcaBadge(c.marca)}</div>
+      <div class="cell"><span class="badge badge-gray" style="font-size:.65rem">${c.nivel}</span></div>
+      <div class="cell" style="font-size:.78rem;color:var(--muted);line-height:1.35">${c.cat}</div>
+      <div class="cell"><span class="badge ${activoLocal?'badge-teal':'badge-gray'}">${activoLocal?'Activo':'Inactivo'}</span></div>
+      <div class="cell cell-actions">
+        <button class="btn-icon ${activoLocal?'on':'off'}" title="${toggleTitle}" onclick="window.toggleComp('${c.id}')">${activoLocal?'✓':'○'}</button>
+        ${isAdmin?`<button class="btn-icon" title="Editar" onclick="window.abrirModal('${c.id}')">✎</button><button class="btn-icon danger" title="Eliminar" onclick="window.eliminar('${c.id}')">✕</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.toggleComp = async (id) => {
+  if(isAdmin){
+    const c = componentes.find(c=>c.id===id);
+    if(!c) return;
+    c.activo = !c.activo;
+    await updateDoc(doc(db,"componentes",id),{activo:c.activo});
+    notif(c.activo?'✓ Activado globalmente':'Desactivado globalmente');
+  } else {
+    prefMap[id] = prefMap[id]===false ? true : false;
+    await updateDoc(doc(db,"preferencias",currentUid),{[`componentes.${id}`]:prefMap[id]});
+    notif(prefMap[id]?'✓ Adicionado à tua lista':'Removido da tua lista');
+  }
+  renderStats(); renderTable();
+};
+
+window.eliminar = async (id) => {
+  if(!isAdmin) return;
+  if(!confirm('Eliminar este componente para todos os utilizadores?')) return;
+  await deleteDoc(doc(db,"componentes",id));
+  componentes = componentes.filter(c=>c.id!==id);
+  notif('Componente eliminado');
+  renderStats(); renderTable();
+};
+
+window.abrirModal = (id) => {
+  if(!isAdmin) return;
+  editId=id;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  document.getElementById('modal-title').textContent = id?'Editar componente':'Adicionar componente';
+  if(id){
+    const c = componentes.find(c=>c.id===id);
+    if(!c) return;
+    document.getElementById('f-tipo').value   = c.tipo;
+    document.getElementById('f-marca').value  = c.marca;
+    document.getElementById('f-nome').value   = c.nome;
+    document.getElementById('f-ref').value    = c.ref;
+    document.getElementById('f-klevel').value = c.klevel;
+    document.getElementById('f-nivel').value  = c.nivel;
+    document.getElementById('f-cat').value    = c.cat;
+    document.getElementById('f-notas').value  = c.notas;
+    document.getElementById('f-activo').value = c.activo?'true':'false';
+  } else {
+    ['f-nome','f-ref','f-cat','f-notas'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f-tipo').value   = currentTab;
+    document.getElementById('f-marca').value  = 'Össur';
+    document.getElementById('f-klevel').value = 'K3';
+    document.getElementById('f-nivel').value  = 'todos';
+    document.getElementById('f-activo').value = 'true';
+  }
+  window.updateNivelOptions();
+};
+
+window.fecharModal = () => {
+  document.getElementById('modal-overlay').classList.add('hidden');
+  editId=null;
+};
+
+window.updateNivelOptions = () => {
+  const tipo = document.getElementById('f-tipo').value;
+  document.getElementById('f-nivel').innerHTML = tipo==='pe'
+    ? '<option value="todos">Todos os níveis</option>'
+    : `<option value="todos">Todos</option>
+       <option value="TT">Transtibial (TT)</option>
+       <option value="TF">Transfemoral (TF)</option>
+       <option value="DK">Desarticulação joelho (DK)</option>
+       <option value="HP">Hemipelvectomia</option>`;
+};
+
+window.guardarComponente = async () => {
+  if(!isAdmin) return;
+  const nome = document.getElementById('f-nome').value.trim();
+  if(!nome){alert('O nome é obrigatório.');return;}
+  const btn = document.getElementById('btn-guardar-modal');
+  btn.disabled=true; btn.textContent='A guardar...';
+  const tipo = document.getElementById('f-tipo').value;
+  const prefix = tipo==='pe'?'pe':tipo==='joelho'?'jo':'su';
+  const id = editId || prefix+'_'+Date.now();
+  const comp = {
+    id, tipo,
+    activo: document.getElementById('f-activo').value==='true',
+    marca:  document.getElementById('f-marca').value,
+    nome,
+    ref:    document.getElementById('f-ref').value.trim()||'—',
+    klevel: document.getElementById('f-klevel').value,
+    nivel:  document.getElementById('f-nivel').value,
+    cat:    document.getElementById('f-cat').value.trim(),
+    notas:  document.getElementById('f-notas').value.trim(),
+  };
+  await setDoc(doc(db,"componentes",id),comp);
+  if(editId){const idx=componentes.findIndex(c=>c.id===id);if(idx>=0)componentes[idx]=comp;}
+  else componentes.push(comp);
+  window.fecharModal();
+  btn.disabled=false; btn.textContent='Guardar';
+  notif('✓ Componente guardado');
+  renderStats(); renderTable();
+};
+
+window.exportarJSON = () => {
+  const blob=new Blob([JSON.stringify(componentes,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='rehabpro_components_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+};
+
+function notif(msg,type='ok'){
+  const el=document.getElementById('notif');
+  el.className=`notif notif-${type} show`;
+  el.textContent=msg;
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+document.getElementById('modal-overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modal-overlay')) window.fecharModal();
+});
+</script>
+</body>
+</html>
