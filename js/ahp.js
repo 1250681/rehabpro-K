@@ -378,13 +378,45 @@ function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objeti
 }
 
 
+
+// ── Filtrar componentes pelos activos do médico ──
+function filtrarPorPreferencias(presc) {
+  const compDB  = window._componentesDB;
+  const prefMap = window._prefMap;
+  if (!compDB || !prefMap) return presc;
+  const nivelAmp = {4:"TT",3:"DK",2:"TF",1:"HP"}[answers["nivel_amp"]||4]||"TT";
+  function primeiroActivo(tipo, nivel) {
+    return compDB.find(c => c.tipo===tipo && c.activo && prefMap[c.id]!==false &&
+      (c.nivel==="todos" || c.nivel===nivel || nivel==="todos"));
+  }
+  function resolver(secção, tipo, nivel) {
+    if (!secção) return null;
+    const match = compDB.filter(c => c.tipo===tipo && c.activo && prefMap[c.id]!==false &&
+      (c.nivel==="todos" || c.nivel===nivel));
+    if (match.length===0) return secção;
+    const nomes = [secção.ossur||"", secção.ottobock||""].join(" ").toLowerCase();
+    const temActivo = match.some(c => nomes.includes(c.nome.toLowerCase().replace(/®/g,"").trim()));
+    if (temActivo) return secção;
+    const alt = primeiroActivo(tipo, nivel);
+    if (!alt) return secção;
+    const ossurNome   = alt.marca==="Össur"    ? alt.nome : "—";
+    const ottobockNome= alt.marca==="Ottobock" ? alt.nome : "—";
+    return { cat: alt.cat, ossur: ossurNome, ottobock: ottobockNome, _substituido: true };
+  }
+  return { ...presc,
+    pe:        resolver(presc.pe,       "pe",        "todos"),
+    joelho:    resolver(presc.joelho,   "joelho",    nivelAmp),
+    suspensao: resolver(presc.suspensao,"suspensao", nivelAmp)
+  };
+}
 function renderPrescription(finalK) {
   const nivel_amp = answers["nivel_amp"] || 4;
   const maturidade = prescAnswers["maturidade_coto"] || 2;
   const tecido = prescAnswers["tecido_coto"] || 3;
   const cognicao = answers["cognicao"] || 3;
   const objetivo = answers["objetivo"] || 2;
-  const presc = getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objetivo);
+  let presc = getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objetivo);
+  presc = filtrarPorPreferencias(presc);
 
   const nivelLabels = {4:"Transtibial", 3:"Desarticulação do joelho", 2:"Transfemoral", 1:"Hemipelvectomia"};
   const maturLabels = {3:"Maduro (> 12 meses)", 2:"Em consolidação (6–12 meses)", 1:"Recente (< 6 meses)"};
@@ -906,3 +938,4 @@ computeAHPSilent();
 const content=document.getElementById('content');
 content.classList.add('block-enter');
 renderBlock();
+
