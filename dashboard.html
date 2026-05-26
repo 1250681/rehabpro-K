@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard · RehabPro</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .page-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      padding: 2.5rem 1.5rem 2rem;
+      border-bottom: 1px solid rgba(13,148,136,.2);
+    }
+    .hero-inner { max-width:1100px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+    .hero-left h1 { font-size:1.6rem; font-weight:700; color:#fff; margin-bottom:.25rem; }
+    .hero-left p  { color:rgba(255,255,255,.45); font-size:.875rem; }
+    .hero-actions { display:flex; gap:.75rem; align-items:center; }
+
+    main { padding:2rem 1.5rem 5rem; }
+    .main-inner { max-width:1100px; margin:0 auto; }
+
+    /* Stats */
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+    .stat-card { background:white; border:1px solid var(--border); border-radius:var(--r); padding:1.25rem 1.5rem; }
+    .stat-card .sn { font-family:'DM Mono',monospace; font-size:2rem; font-weight:500; color:var(--teal2); line-height:1; }
+    .stat-card .sl { font-size:.76rem; color:var(--muted); margin-top:.3rem; }
+
+    /* Search + filter */
+    .toolbar { display:flex; gap:.875rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .search-wrap { flex:1; min-width:220px; position:relative; }
+    .search-wrap input { width:100%; padding:.75rem 1rem .75rem 2.75rem; font-size:.9rem; font-family:'Sora',sans-serif; background:white; border:1.5px solid var(--border); border-radius:.75rem; color:var(--text); }
+    .search-wrap input:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(13,148,136,.12); }
+    .search-wrap svg { position:absolute; left:.875rem; top:50%; transform:translateY(-50%); color:var(--muted); }
+    .filter-select { padding:.75rem 1rem; font-size:.875rem; font-family:'Sora',sans-serif; background:white; border:1.5px solid var(--border); border-radius:.75rem; color:var(--text); cursor:pointer; min-width:140px; }
+
+    /* Patient table */
+    .patient-table { background:white; border:1px solid var(--border); border-radius:var(--r); overflow:hidden; box-shadow:0 2px 12px rgba(11,31,58,.06); }
+    .pt-head { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1.2fr 120px; gap:1rem; padding:.875rem 1.5rem; background:rgba(11,31,58,.03); border-bottom:1px solid var(--border); }
+    .pt-head span { font-size:.68rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+    .pt-row { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1.2fr 120px; gap:1rem; padding:1rem 1.5rem; border-bottom:1px solid var(--border); align-items:center; transition:background .15s; cursor:pointer; }
+    .pt-row:last-child { border-bottom:none; }
+    .pt-row:hover { background:rgba(13,148,136,.04); }
+    .pt-name { font-weight:600; color:var(--navy); font-size:.9rem; }
+    .pt-sub  { font-size:.75rem; color:var(--muted); margin-top:.1rem; }
+    .pt-cell { font-size:.875rem; color:var(--text); }
+    .pt-cell.mono { font-family:'DM Mono',monospace; font-size:.82rem; }
+
+    /* K badge */
+    .k-badge { display:inline-flex; align-items:center; padding:.25rem .75rem; border-radius:999px; font-size:.75rem; font-weight:700; font-family:'DM Mono',monospace; border:1px solid; }
+    .k-0 { background:rgba(239,68,68,.1); color:#b91c1c; border-color:rgba(239,68,68,.25); }
+    .k-1 { background:rgba(245,158,11,.1); color:#92400e; border-color:rgba(245,158,11,.25); }
+    .k-2 { background:rgba(59,130,246,.1); color:#1d4ed8; border-color:rgba(59,130,246,.25); }
+    .k-3 { background:rgba(13,148,136,.1); color:#0f766e; border-color:rgba(13,148,136,.25); }
+    .k-4 { background:rgba(139,92,246,.1); color:#6d28d9; border-color:rgba(139,92,246,.25); }
+    .k-none { background:rgba(100,116,139,.1); color:#475569; border-color:rgba(100,116,139,.2); }
+
+    .pt-actions { display:flex; gap:.5rem; }
+    .pt-btn { padding:.4rem .875rem; border-radius:.5rem; font-size:.78rem; font-weight:600; cursor:pointer; border:1px solid; font-family:'Sora',sans-serif; transition:all .15s; }
+    .pt-btn-ver { background:var(--teal); color:white; border-color:var(--teal); }
+    .pt-btn-ver:hover { background:var(--teal2); }
+    .pt-btn-aval { background:transparent; color:var(--navy); border-color:var(--border); }
+    .pt-btn-aval:hover { border-color:var(--teal); color:var(--teal2); }
+
+    /* Empty */
+    .empty { text-align:center; padding:4rem 2rem; color:var(--muted); }
+    .empty .icon { font-size:3rem; margin-bottom:1rem; }
+    .empty h3 { font-size:1.1rem; font-weight:600; color:var(--navy); margin-bottom:.5rem; }
+
+    /* Loading */
+    .loading { text-align:center; padding:3rem; color:var(--muted); }
+    .spin { display:inline-block; width:32px; height:32px; border:3px solid rgba(13,148,136,.2); border-top-color:var(--teal); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* Modal novo paciente */
+    .modal-overlay { position:fixed; inset:0; background:rgba(11,31,58,.6); backdrop-filter:blur(4px); z-index:1000; display:none; align-items:center; justify-content:center; padding:1.5rem; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:white; border-radius:1.125rem; padding:2rem; width:100%; max-width:520px; box-shadow:0 24px 60px rgba(11,31,58,.3); }
+    .modal h2 { font-size:1.2rem; font-weight:700; color:var(--navy); margin-bottom:1.5rem; }
+    .mf { margin-bottom:1rem; }
+    .mf label { display:block; font-size:.68rem; font-weight:600; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin-bottom:.4rem; }
+    .mf input, .mf select { width:100%; padding:.75rem 1rem; font-size:.875rem; font-family:'Sora',sans-serif; border:1.5px solid rgba(13,148,136,.2); border-radius:.7rem; color:var(--text); }
+    .mf input:focus, .mf select:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(13,148,136,.12); }
+    .mf-row { display:grid; grid-template-columns:1fr 1fr; gap:.875rem; }
+    .modal-actions { display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.5rem; }
+
+    @media(max-width:900px) {
+      .stats { grid-template-columns:1fr 1fr; }
+      .pt-head, .pt-row { grid-template-columns:2fr 1fr 1fr 120px; }
+      .pt-head span:nth-child(3), .pt-head span:nth-child(4),
+      .pt-row > *:nth-child(3), .pt-row > *:nth-child(4) { display:none; }
+    }
+    @media(max-width:600px) {
+      .stats { grid-template-columns:1fr 1fr; }
+      .pt-head, .pt-row { grid-template-columns:1fr 1fr 100px; }
+      .pt-head span:nth-child(2), .pt-row > *:nth-child(2) { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="dashboard.html" class="nav-brand">
+    <svg class="nav-logo" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="8" fill="rgba(13,148,136,.2)"/>
+      <path d="M10 26V14l8-6 8 6v12" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M15 26v-6h6v6" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="nav-brand-text">
+      <span class="top">Medicina Física</span>
+      <span class="btm">RehabPro</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="dashboard.html" class="active">Pacientes</a></li>
+    <li><a href="componentes.html">Componentes</a></li>
+    <li><a href="#" id="nav-nome" style="color:rgba(255,255,255,.4);cursor:default"></a></li>
+    <li><a href="#" onclick="doLogout()" style="color:#f87171">Sair</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <h1 id="hero-title">Os meus pacientes</h1>
+      <p id="hero-sub">Carregando...</p>
+    </div>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="abrirModal()">+ Novo paciente</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="main-inner">
+
+    <div class="stats" id="stats-grid">
+      <div class="stat-card"><div class="sn" id="s-total">—</div><div class="sl">Total de pacientes</div></div>
+      <div class="stat-card"><div class="sn" id="s-avaliados">—</div><div class="sl">Com avaliação</div></div>
+      <div class="stat-card"><div class="sn" id="s-k3k4">—</div><div class="sl">K3 ou K4</div></div>
+      <div class="stat-card"><div class="sn" id="s-k0k1">—</div><div class="sl">K0 ou K1</div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="search" placeholder="Pesquisar por nome ou processo..." oninput="filterTable()"/>
+      </div>
+      <select class="filter-select" id="filter-k" onchange="filterTable()">
+        <option value="">Todos os K-Level</option>
+        <option value="0">K0</option>
+        <option value="1">K1</option>
+        <option value="2">K2</option>
+        <option value="3">K3</option>
+        <option value="4">K4</option>
+        <option value="none">Sem avaliação</option>
+      </select>
+    </div>
+
+    <div class="patient-table">
+      <div class="pt-head">
+        <span>Paciente</span>
+        <span>Idade</span>
+        <span>Nível amp.</span>
+        <span>Data aval.</span>
+        <span>K-Level</span>
+        <span>Acções</span>
+      </div>
+      <div id="patient-list">
+        <div class="loading"><div class="spin"></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal novo paciente -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>Novo paciente</h2>
+    <div class="mf-row">
+      <div class="mf"><label>Nome completo</label><input type="text" id="m-nome" placeholder="Nome do doente"/></div>
+      <div class="mf"><label>Nº processo</label><input type="text" id="m-processo" placeholder="Processo"/></div>
+    </div>
+    <div class="mf-row">
+      <div class="mf"><label>Data de nascimento</label><input type="date" id="m-nascimento" min="1900-01-01" max="2024-12-31"/></div>
+      <div class="mf">
+        <label>Sexo</label>
+        <select id="m-sexo"><option value="">—</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select>
+      </div>
+    </div>
+    <div class="mf-row">
+      <div class="mf"><label>Peso (kg)</label><input type="number" id="m-peso" placeholder="kg" min="1" max="300" step="0.1"/></div>
+      <div class="mf"><label>Altura (cm)</label><input type="number" id="m-altura" placeholder="cm" min="50" max="250" step="1"/></div>
+    </div>
+    <div class="mf">
+      <label>Diagnóstico / motivo de referenciação</label>
+      <input type="text" id="m-diagnostico" placeholder="Ex: Amputação transtibial traumática"/>
+    </div>
+    <div id="modal-alert" style="display:none;margin-top:.75rem;padding:.75rem 1rem;border-radius:.5rem;font-size:.85rem;background:#fef2f2;color:#991b1b;border:1px solid #fecaca"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="criarPaciente()" id="btn-criar">Criar paciente</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="dashboard.html">Pacientes</a>
+    <a href="index.html">Início</a>
+  </div>
+  <p><strong>RehabPro · AHP K-Level</strong> · Ferramenta de apoio à decisão clínica</p>
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, collection,
+           query, where, getDocs, orderBy, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey:"AIzaSyCprkCj3YQdO6WtyXJvYBChCuUP_ge9JaU",
+    authDomain:"rehabpro-3a01e.firebaseapp.com",
+    projectId:"rehabpro-3a01e",
+    storageBucket:"rehabpro-3a01e.firebasestorage.app",
+    messagingSenderId:"690449795180",
+    appId:"1:690449795180:web:9fe2db77e3b496a197f049"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser    = null;
+  let currentProfile = null;
+  let allPacientes   = [];
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (!snap.exists() || snap.data().status !== "ativo") {
+      await signOut(auth); window.location.href = "login.html?msg=pendente"; return;
+    }
+    currentUser    = user;
+    currentProfile = snap.data();
+    document.getElementById("nav-nome").textContent = currentProfile.nome;
+    document.getElementById("hero-sub").textContent =
+      `${currentProfile.especialidade} · ${currentProfile.instituicao}`;
+    if (currentProfile.role === "admin")
+      document.getElementById("hero-title").textContent = "Todos os pacientes";
+    await carregarPacientes();
+  });
+
+  async function carregarPacientes() {
+    const col = collection(db, "pacientes");
+    let q;
+    if (currentProfile.role === "admin") {
+      q = query(col, orderBy("criadoEm", "desc"));
+    } else {
+      q = query(col, where("medicoId", "==", currentUser.uid), orderBy("criadoEm", "desc"));
+    }
+    const snaps = await getDocs(q);
+    allPacientes = snaps.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderStats();
+    renderTable(allPacientes);
+  }
+
+  function renderStats() {
+    const total     = allPacientes.length;
+    const avaliados = allPacientes.filter(p => p.avaliacao).length;
+    const k3k4      = allPacientes.filter(p => p.avaliacao && p.avaliacao.finalK >= 3).length;
+    const k0k1      = allPacientes.filter(p => p.avaliacao && p.avaliacao.finalK <= 1).length;
+    document.getElementById("s-total").textContent    = total;
+    document.getElementById("s-avaliados").textContent= avaliados;
+    document.getElementById("s-k3k4").textContent     = k3k4;
+    document.getElementById("s-k0k1").textContent     = k0k1;
+  }
+
+  function renderTable(pacientes) {
+    const el = document.getElementById("patient-list");
+    if (pacientes.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="icon">📋</div><h3>Sem pacientes</h3><p>Clica em "Novo paciente" para adicionar o primeiro registo.</p></div>`;
+      return;
+    }
+    const nivelLabel = {4:"Transtibial",3:"Desart. joelho",2:"Transfemoral",1:"Hemipelv."};
+    el.innerHTML = pacientes.map(p => {
+      const aval  = p.avaliacao;
+      const kBadge = aval != null
+        ? `<span class="k-badge k-${aval.finalK}">K${aval.finalK}</span>`
+        : `<span class="k-badge k-none">—</span>`;
+      const nivel = aval ? (nivelLabel[aval.nivel_amp] || "—") : "—";
+      const data  = aval ? new Date(aval.data?.seconds*1000).toLocaleDateString("pt-PT") : "—";
+      const idade = p.nascimento
+        ? Math.floor((Date.now() - new Date(p.nascimento)) / 31557600000) + " anos"
+        : "—";
+      return `<div class="pt-row" onclick="verPaciente('${p.id}')">
+        <div><div class="pt-name">${p.nome}</div><div class="pt-sub">Proc. ${p.processo||"—"}</div></div>
+        <div class="pt-cell">${idade}</div>
+        <div class="pt-cell">${nivel}</div>
+        <div class="pt-cell mono">${data}</div>
+        <div>${kBadge}</div>
+        <div class="pt-actions" onclick="event.stopPropagation()">
+          <button class="pt-btn pt-btn-aval" onclick="iniciarAvaliacao('${p.id}')">Avaliar</button>
+          <button class="pt-btn pt-btn-ver" onclick="verPaciente('${p.id}')">Ver</button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  window.filterTable = () => {
+    const search = document.getElementById("search").value.toLowerCase();
+    const kFilter= document.getElementById("filter-k").value;
+    const filtered = allPacientes.filter(p => {
+      const matchSearch = !search ||
+        p.nome?.toLowerCase().includes(search) ||
+        p.processo?.toLowerCase().includes(search);
+      const matchK = !kFilter ||
+        (kFilter === "none" && !p.avaliacao) ||
+        (kFilter !== "none" && p.avaliacao?.finalK === parseInt(kFilter));
+      return matchSearch && matchK;
+    });
+    renderTable(filtered);
+  };
+
+  window.abrirModal  = () => document.getElementById("modal").classList.add("show");
+  window.fecharModal = () => {
+    document.getElementById("modal").classList.remove("show");
+    document.getElementById("modal-alert").style.display="none";
+  };
+
+  window.criarPaciente = async () => {
+    const nome       = document.getElementById("m-nome").value.trim();
+    const processo   = document.getElementById("m-processo").value.trim();
+    const nascimento = document.getElementById("m-nascimento").value;
+    const sexo       = document.getElementById("m-sexo").value;
+    const peso       = document.getElementById("m-peso").value;
+    const altura     = document.getElementById("m-altura").value;
+    const diagnostico= document.getElementById("m-diagnostico").value.trim();
+    const alertEl    = document.getElementById("modal-alert");
+
+    if (!nome) { alertEl.style.display="block"; alertEl.textContent="O nome é obrigatório."; return; }
+    if (nascimento) {
+      const d = new Date(nascimento), hoje = new Date();
+      if (d.getFullYear() < 1900 || d > hoje) {
+        alertEl.style.display="block"; alertEl.textContent="Data de nascimento inválida (entre 1900 e hoje)."; return;
+      }
+    }
+    if (peso && (parseFloat(peso) < 1 || parseFloat(peso) > 300)) {
+      alertEl.style.display="block"; alertEl.textContent="Peso deve estar entre 1 e 300 kg."; return;
+    }
+    if (altura && (parseFloat(altura) < 50 || parseFloat(altura) > 250)) {
+      alertEl.style.display="block"; alertEl.textContent="Altura deve estar entre 50 e 250 cm."; return;
+    }
+
+    const btn = document.getElementById("btn-criar");
+    btn.disabled = true; btn.textContent = "A guardar...";
+
+    try {
+      const id = `${currentUser.uid}_${Date.now()}`;
+      await setDoc(doc(db, "pacientes", id), {
+        nome, processo, nascimento, sexo,
+        peso: peso ? parseFloat(peso) : null,
+        altura: altura ? parseFloat(altura) : null,
+        diagnostico,
+        medicoId:   currentUser.uid,
+        medicoNome: currentProfile.nome,
+        avaliacao:  null,
+        criadoEm:   serverTimestamp()
+      });
+      fecharModal();
+      await carregarPacientes();
+      iniciarAvaliacao(id);
+    } catch(e) {
+      alertEl.style.display="block";
+      alertEl.textContent="Erro ao guardar. Tenta novamente.";
+      btn.disabled=false; btn.textContent="Criar paciente";
+    }
+  };
+
+  window.verPaciente = (id) => {
+    sessionStorage.setItem("pacienteId", id);
+    window.location.href = "resultado.html";
+  };
+
+  window.iniciarAvaliacao = (id) => {
+    sessionStorage.setItem("pacienteId", id);
+    window.location.href = "ferramenta.html";
+  };
+
+  window.doLogout = async () => { await signOut(auth); window.location.href="login.html"; };
+</script>
+</body>
+</html>
