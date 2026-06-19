@@ -171,7 +171,6 @@ function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objeti
         ossur: "Proprio Foot® (microprocessado, adaptação automática)",
         ottobock: "Meridium® (1B1-2) — microprocessado K2–K3, 275 lbs"
       };
-      out.notas.push("Perfil de segurança comprometido: pé microprocessado recomendado mesmo em K3 — Proprio Foot / Meridium adaptam o ângulo do tornozelo em tempo real, reduzindo tropeços.");
     } else if (altaAtiv) {
       // K3 alta actividade
       out.pe = {
@@ -190,8 +189,8 @@ function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objeti
     // Nota Proprio Foot sempre disponível como alternativa de segurança em K3
   }
   else if (finalK === 4) {
-    if (altaAtiv) {
-      // K4 desportivo
+    if (objetivo === 4) {
+      // K4 desportivo — apenas para objetivo explicitamente desportivo / trabalho físico intenso
       out.pe = {
         cat: "Lâmina de carbono desportiva — corrida / alto impacto / desporto específico",
         ossur: "Cheetah® Xpanse / Cheetah® Xcel / Cheetah® Xplore (família corrida K4)",
@@ -199,7 +198,7 @@ function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objeti
       };
       out.notas.push("K4 desportivo: lâmina de corrida para uso desportivo específico. Para uso quotidiano intenso combinar com pé ESAR de alto desempenho: Pro-Flex XC Torsion (Össur) / Taleo Adapt 1C59 ou família Triton K3–K4 (Ottobock).");
     } else {
-      // K4 uso diário alta performance
+      // K4 uso diário alta performance (inclui comunidade plena, retorno profissional, uso intenso não desportivo)
       out.pe = {
         cat: "Pé ESAR de alta performance com torsão — uso diário K4, impacto elevado",
         ossur: "Pro-Flex® XC Torsion (ESAR + rotação, 147kg) / Pro-Flex® XC (166kg, IP68)",
@@ -238,7 +237,6 @@ function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objeti
             ossur: "Navii® (MPK IP68, K2–K3, bloqueo mecânico variável, 136kg) / Rheo Knee® (MPK, K2–K3, 136kg)",
             ottobock: "Kenevo (MPK, Modo A/B/B+/C, stumble recovery, modo cadeira de rodas, K2–K3)"
           };
-          out.notas.push("K2 com segurança comprometida: Navii (Össur) e Kenevo (Ottobock) são MPKs concebidos especificamente para utilizadores com mobilidade limitada — incluem stumble recovery, bloqueo em bipedestação e configuração progressiva por modos de actividade.");
         } else {
           out.joelho = {
             cat: "Joelho policêntrico básico — marcha doméstica / comunitária limitada",
@@ -284,13 +282,14 @@ function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objeti
         ottobock: "Socket preparatório + correa supracondiliana"
       };
       out.notas.push("Coto recente (< 6 meses): vácuo elevado e Seal-In contra-indicados — volume instável impede vedação adequada. Socket provisório com volume ajustável é a indicação correcta. Reavaliar suspensão definitiva após estabilização volumétrica (tipicamente 3–6 meses).");
+      out.notas.push("⚠ Lembrete — suspensão por silicone com vácuo: na fase inicial de primeira prótese a redução volumétrica do coto é rápida e significativa. Qualquer sistema de vácuo (Seal-In, elevated vacuum ou sucção directa) perde eficácia à medida que o volume diminui, resultando em pistoning, lesões cutâneas e risco de queda. Só considerar após confirmação de estabilidade volumétrica.");
     } else if (telidoFragil) {
       out.suspensao = {
         cat: "Pin lock — evitar vácuo elevado (risco de úlcera por gradiente de pressão)",
         ossur: "Iceross® Dermo Locking / Iceross® Comfort Locking + Icelock pin",
         ottobock: "Liner silicone + sistema de pin lock"
       };
-      out.notas.push("Pele frágil / atrófica: vácuo elevado e sucção directa contra-indicados. Pin lock distribui pressão de forma mais uniforme e é tecnicamente mais simples de gerir. Inspecção diária do coto obrigatória.");
+      out.notas.push("⚠ Liner silicone para pele frágil \"Dermo\"");
     } else if (cicatriz) {
       if (cogOk) {
         out.suspensao = {
@@ -298,7 +297,6 @@ function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objeti
           ossur: "Iceross Seal-In® X / V (sucção por membranas, bom controlo rotacional) + Unity passivo",
           ottobock: "Liner silicone + Harmony P2 (vácuo passivo)"
         };
-        out.notas.push("Cicatriz aderente: inspecção diária das zonas de pressão. Suspender uso se rubor persistente > 20 min após remoção. Iceross Seal-In X Locking (híbrido) como alternativa se controlo rotacional for prioritário.");
       } else {
         out.suspensao = {
           cat: "Pin lock — mais simples de gerir, cognição limitada",
@@ -337,6 +335,7 @@ function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objeti
         ottobock: "Socket preparatório + cinto Silesian"
       };
       out.notas.push("Coto transfemoral recente: sucção directa e vácuo contra-indicados — volume instável impede vedação. Cinto Silesian é a opção mais tolerante. Reavaliar em 3–6 meses.");
+      out.notas.push("⚠ vácuo comprometido por perda rápida de volume");
     } else if (telidoFragil) {
       out.suspensao = {
         cat: "Liner TF com cinto auxiliar — evitar sucção directa",
@@ -380,33 +379,81 @@ function getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objeti
 
 
 // ── Filtrar componentes pelos activos do médico ──
-function filtrarPorPreferencias(presc) {
+
+// Verifica se um componente (klevel ex: "K3-K4", "K4", "K1-K2") é adequado para o finalK do doente.
+// Um componente é adequado se finalK está dentro do intervalo [kMin, kMax].
+function kMatch(klevel, finalK) {
+  if (!klevel) return false;
+  const parts = klevel.replace(/K/g, '').split('-').map(Number);
+  const kMin = parts[0];
+  const kMax = parts[parts.length - 1];
+  return finalK >= kMin && finalK <= kMax;
+}
+
+function filtrarPorPreferencias(presc, finalK) {
   const compDB  = window._componentesDB;
   const prefMap = window._prefMap;
   if (!compDB || !prefMap) return presc;
   const nivelAmp = {4:"TT",3:"DK",2:"TF",1:"HP"}[answers["nivel_amp"]||4]||"TT";
-  function primeiroActivo(tipo, nivel) {
-    return compDB.find(c => c.tipo===tipo && c.activo && prefMap[c.id]!==false &&
-      (c.nivel==="todos" || c.nivel===nivel || nivel==="todos"));
+
+  // Devolve o melhor componente activo e compatível com o K-Level do doente.
+  // Ordena por kMax descendente para preferir componentes de maior performance.
+  function buildFromDB(tipo, nivel, k) {
+    const activos = compDB.filter(c =>
+      c.tipo === tipo && c.activo && prefMap[c.id] !== false &&
+      (c.nivel === "todos" || c.nivel === nivel) &&
+      kMatch(c.klevel, k)
+    ).sort((a, b) => {
+      const aMax = parseInt((a.klevel||'0').replace(/K/g,'').split('-').pop());
+      const bMax = parseInt((b.klevel||'0').replace(/K/g,'').split('-').pop());
+      return bMax - aMax;
+    });
+    if (activos.length === 0) return null;
+    const ossur    = activos.filter(c => c.marca === "Össur").map(c => c.nome).join(" / ") || "—";
+    const ottobock = activos.filter(c => c.marca === "Ottobock").map(c => c.nome).join(" / ") || "—";
+    return { cat: activos[0].cat, ossur, ottobock };
   }
-  function resolver(secção, tipo, nivel) {
-    if (!secção) return null;
-    const match = compDB.filter(c => c.tipo===tipo && c.activo && prefMap[c.id]!==false &&
-      (c.nivel==="todos" || c.nivel===nivel));
-    if (match.length===0) return secção;
-    const nomes = [secção.ossur||"", secção.ottobock||""].join(" ").toLowerCase();
-    const temActivo = match.some(c => nomes.includes(c.nome.toLowerCase().replace(/®/g,"").trim()));
-    if (temActivo) return secção;
-    const alt = primeiroActivo(tipo, nivel);
-    if (!alt) return secção;
-    const ossurNome   = alt.marca==="Össur"    ? alt.nome : "—";
-    const ottobockNome= alt.marca==="Ottobock" ? alt.nome : "—";
-    return { cat: alt.cat, ossur: ossurNome, ottobock: ottobockNome, _substituido: true };
+
+  // Suspensão via DB com restrições clínicas por tags.
+  // excludeTags impede que tipos contra-indicados (ex: vácuo em coto recente) sejam prescritos.
+  // Se o DB não devolver nada válido após filtragem, cai no fallback clínico hardcoded.
+  const maturidade   = prescAnswers["maturidade_coto"] || 2;
+  const tecido       = prescAnswers["tecido_coto"] || 3;
+  const cognicao     = answers["cognicao"] || 3;
+  const objetivo     = answers["objetivo"] || 2;
+  const cotoRecente  = maturidade === 1;
+  const cotoMaduro   = maturidade === 3;
+  const telidoFragil = tecido === 1;
+  const cogOk        = cognicao >= 3;
+  const altaAtiv     = objetivo >= 3;
+
+  const excludeTags = [];
+  if (cotoRecente)   excludeTags.push('vacuum_elevado', 'seal_in'); // vácuo contra-indicado — volume instável
+  if (telidoFragil)  excludeTags.push('vacuum_elevado');            // gradiente de pressão excessivo
+  if (!cogOk)        excludeTags.push('vacuum_elevado');            // gestão complexa do sistema
+  if (!cotoMaduro)   excludeTags.push('vacuum_elevado');            // volume não estável
+
+  function buildSuspensionFromDB(nivel, k) {
+    const activos = compDB.filter(c =>
+      c.tipo === 'suspensao' && c.activo && prefMap[c.id] !== false &&
+      (c.nivel === "todos" || c.nivel === nivel) &&
+      kMatch(c.klevel, k) &&
+      !(c.tags || []).some(t => excludeTags.includes(t))
+    ).sort((a, b) => {
+      const aMax = parseInt((a.klevel||'0').replace(/K/g,'').split('-').pop());
+      const bMax = parseInt((b.klevel||'0').replace(/K/g,'').split('-').pop());
+      return bMax - aMax;
+    });
+    if (activos.length === 0) return null;
+    const ossur    = activos.filter(c => c.marca === "Össur").map(c => c.nome).join(" / ") || "—";
+    const ottobock = activos.filter(c => c.marca === "Ottobock").map(c => c.nome).join(" / ") || "—";
+    return { cat: activos[0].cat, ossur, ottobock };
   }
+
   return { ...presc,
-    pe:        resolver(presc.pe,       "pe",        "todos"),
-    joelho:    resolver(presc.joelho,   "joelho",    nivelAmp),
-    suspensao: resolver(presc.suspensao,"suspensao", nivelAmp)
+    pe:        buildFromDB("pe", "todos", finalK) || presc.pe,
+    joelho:    presc.joelho ? (buildFromDB("joelho", nivelAmp, finalK) || presc.joelho) : null,
+    suspensao: buildSuspensionFromDB(nivelAmp, finalK) || presc.suspensao
   };
 }
 function renderPrescription(finalK) {
@@ -416,7 +463,7 @@ function renderPrescription(finalK) {
   const cognicao = answers["cognicao"] || 3;
   const objetivo = answers["objetivo"] || 2;
   let presc = getPrescription(finalK, nivel_amp, maturidade, tecido, cognicao, objetivo);
-  presc = filtrarPorPreferencias(presc);
+  presc = filtrarPorPreferencias(presc, finalK);
 
   const nivelLabels = {4:"Transtibial", 3:"Desarticulação do joelho", 2:"Transfemoral", 1:"Hemipelvectomia"};
   const maturLabels = {3:"Maduro (> 12 meses)", 2:"Em consolidação (6–12 meses)", 1:"Recente (< 6 meses)"};
