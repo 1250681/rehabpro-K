@@ -283,7 +283,18 @@ table.mtx input:focus { outline:none; border-color:var(--accent); box-shadow:0 0
         getDocs(collection(db, "componentes"))
       ]);
       window._prefMap = prefSnap.exists() ? (prefSnap.data().componentes || {}) : null;
-      window._componentesDB = colSnap.empty ? null : colSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Tags de suspensão — backfill para componentes sem tags no Firestore
+      const _SUSP_TAGS = {
+        'su_001':['pin_lock'], 'su_002':['seal_in'],    'su_003':['vacuum_elevado'],
+        'su_004':['seal_in'],  'su_005':['vacuum_elevado'], 'su_006':['seal_in'],
+        'su_007':['vacuum_elevado'], 'su_008':['vacuum_elevado'],
+        'su_009':['silesian'], 'su_010':['seal_in']
+      };
+      window._componentesDB = colSnap.empty ? null : colSnap.docs.map(d => {
+        const c = { id: d.id, ...d.data() };
+        if (!c.tags && _SUSP_TAGS[c.id]) c.tags = _SUSP_TAGS[c.id];
+        return c;
+      });
     } catch(e) {
       window._prefMap = null;
       window._componentesDB = null;
