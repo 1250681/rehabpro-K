@@ -647,7 +647,7 @@ function renderMatrix(){
     html+=`<tr><th>${CRIT[i]}</th>`;
     for(let j=0;j<n;j++){
       if(i===j) html+=`<td class="diag">1</td>`;
-      else if(j<i) html+=`<td style="color:var(--text-3);font-size:11px;">${(1/ahpMatrix[j][i]).toFixed(2)}</td>`;
+      else if(j<i) html+=`<td id="r${i}_${j}" style="color:var(--text-3);font-size:11px;">${(1/ahpMatrix[j][i]).toFixed(2)}</td>`;
       else html+=`<td><input id="m${i}_${j}" type="number" min="0.11" max="9" step="0.01" value="${ahpMatrix[i][j]}" onchange="syncReciprocal(${i},${j})"></td>`;
     }
     html+=`</tr>`;
@@ -662,10 +662,15 @@ function renderMatrix(){
 function syncReciprocal(i,j){
   const el=document.getElementById(`m${i}_${j}`);
   if(!el) return;
-  ahpMatrix[i][j]=parseFloat(el.value)||1;
-  ahpMatrix[j][i]=1/ahpMatrix[i][j];
-  const rec=document.getElementById(`m${j}_${i}`);
-  if(rec) rec.value=(ahpMatrix[j][i]).toFixed(2);
+  // Escala Saaty: 1/9 (≈0.11) a 9 — clampar e corrigir o input
+  let v = parseFloat(el.value)||1;
+  v = Math.min(9, Math.max(0.11, v));
+  el.value = v;
+  ahpMatrix[i][j]=v;
+  ahpMatrix[j][i]=1/v;
+  // Actualizar célula recíproca no triângulo inferior (texto estático com id r${j}_${i})
+  const rec=document.getElementById(`r${j}_${i}`);
+  if(rec) rec.textContent=(ahpMatrix[j][i]).toFixed(2);
 }
 
 function renderCuts(){
